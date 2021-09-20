@@ -7,22 +7,17 @@ class BaseModel(Connection):
         self.table_name = None
         self.fields = ""
 
-    def get_all(self):
+    def all(self):
         self.cursor.execute(f"select * from {self.table_name}")
-        return self.all()
-
-    def query(self, query, values=None):
-        self.cursor.execute(str(query), values)
-        return self
+        return self.get_all()
 
     def get_fields(self, fields=None):
         if fields is None:
             fields = self.fields
-        self.cursor.execute(f"select {fields} from {self.table_name} ")
-        return self
+        return self.query(f"select {fields} from {self.table_name} ")
 
     def where(self, conditions, values, fields=None):
         if fields is None:
             fields = self.fields
-        self.cursor.execute(f"select {fields} from {self.table_name} where {conditions}", values)
-        return self
+        return self.query(f"select {fields} from {self.table_name} where {conditions}", values)
+

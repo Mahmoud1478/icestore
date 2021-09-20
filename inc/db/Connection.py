@@ -26,11 +26,18 @@ class Connection:
     def close(self):
         self.db.close()
 
-    def all(self):
+    def get_all(self):
         return self.cursor.fetchall()
 
-    def one(self):
+    def first(self):
         return self.cursor.fetchone()
 
-    def commit(self):
+    def save(self):
         self.db.commit()
+
+    def query(self, query, values=None):
+        self.cursor.execute(str(query), values)
+        return self
+
+    def last_one(self):
+        return self.cursor.lastrowid
