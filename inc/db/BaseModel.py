@@ -108,5 +108,4 @@ class BaseModel(Connection):
             else:
                 placeholder += f'{fields_list[i]} = %s'
             i += 1
-        # print((f"update {self.table_name} set {placeholder} where {conditions[0]}", values + conditions[1]))
         return self.query(f"update {self.table_name} set {placeholder} where {conditions[0]}", values + conditions[1])

@@ -1,5 +1,5 @@
 from inc.db.BaseModel import BaseModel
 
 
-class CategrykModel(BaseModel):
+class CategoryModel(BaseModel):
     pass
