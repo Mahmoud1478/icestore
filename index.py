@@ -1,7 +1,17 @@
-from modules.product.ProductModel import ProductModel
-from modules.users.UserModel import UserModel
-from inc.db.BaseModel import BaseModel
+from modules.home.home import Home
+from PyQt6.QtWidgets import *
+from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+import sys
 
-model = UserModel()
-# model = ProductModel()
-model.create(("user model", "123456798", "مدير", "1", "1")).save()
+
+class Index:
+    def __init__(self):
+        pass
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = Home()
+    window.show()
+    app.exec()
