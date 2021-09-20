@@ -18,5 +18,11 @@ class BaseModel(Connection):
     def get_fields(self, fields=None):
         if fields is None:
             fields = self.fields
-        self.cursor.execute(f"select {fields} from {self.table_name}")
+        self.cursor.execute(f"select {fields} from {self.table_name} ")
+        return self
+
+    def where(self, conditions, values, fields=None):
+        if fields is None:
+            fields = self.fields
+        self.cursor.execute(f"select {fields} from {self.table_name} where {conditions}", values)
         return self

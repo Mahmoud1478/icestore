@@ -12,6 +12,7 @@ class Connection:
                 password="toor",
                 database="futuretouch0"
             )
+            self.db.set_character_set("utf8mb4")
             self.cursor = self.db.cursor()
         except Exception as Error:
             msg = QMessageBox()

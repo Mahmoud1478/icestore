@@ -3,5 +3,4 @@ from inc.db.BaseModel import BaseModel
 
 # model = BaseModel()
 model = ProductModel()
-print(model.get_fields().all())
-
+print(model.where("price = %s", ("3",)).all())
