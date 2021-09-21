@@ -2,10 +2,6 @@ import os
 import glob
 from inc.converters.BaseConvertor import BaseConvertor
 
-'''current_path = str(os.getcwd())
-folder_name = str("pages_ui")
-path = str(os.path.join(current_path, folder_name))'''
-
 
 class Qrc(BaseConvertor):
     def __init__(self):
