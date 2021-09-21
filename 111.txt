@@ -1,7 +1,8 @@
 appdirs==1.4.4
 distlib==0.3.2
 filelock==3.0.12
-mysql-connector==2.2.9
+mysqlclient==2.0.3
+protobuf==3.18.0
 PyQt5Designer==5.14.1
 PyQt6==6.1.1
 PyQt6-Qt6==6.1.2
