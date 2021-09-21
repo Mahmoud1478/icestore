@@ -8,15 +8,15 @@ class BaseModel(Connection):
         self.fields = ""
 
     def all(self):
-        """ get all data of the table  contain all fields """
-        self.cursor.execute(f"select * from {self.table_name}")
+        """ get all data of the table  contains all fields """
+        self.query(f"select * from {self.table_name}")
         return self.get_all()
 
     def get_fields(self, fields=None):
         """ get all data of the table contain your own fields
              requires 1 optional parameters
              (
-                 fields => the fields which will get from database by default it is equal field's var
+                 fields => the fields which will get from table by default it is equal field's var
                             but you can change it by passing your own fields
              )
         """

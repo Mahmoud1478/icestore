@@ -4,7 +4,7 @@ from modules.products.products import Products
 from modules.categories.categories import Categories
 
 
-class Callbacks:
+class HomeActions:
     def add_category_action(self):
         dialog = Categories()
 
