@@ -1,0 +1,7 @@
+<RCC>
+  <qresource >
+    <file>assets/images/cat.ico</file>
+    <file>assets/images/cat.png</file>
+    <file>assets/images/bg_home.jpg</file>
+  </qresource>
+</RCC>

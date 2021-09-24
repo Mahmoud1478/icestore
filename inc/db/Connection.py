@@ -1,6 +1,6 @@
 import MySQLdb
-from PyQt6.QtWidgets import QMessageBox
-from PyQt6.QtGui import QIcon
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtGui import QIcon
 
 
 class Connection:
@@ -10,7 +10,7 @@ class Connection:
                 host="localhost",
                 user="root",
                 password="toor",
-                database="futuretouch0"
+                database="ice_store"
             )
             self.db.set_character_set("utf8mb4")
             self.cursor = self.db.cursor()

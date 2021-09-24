@@ -14,4 +14,4 @@ class Ui(BaseConvertor):
         for item in list_ui:
             output = str(item).replace("\\ui", f"\\{self.base_output_folder}").replace(self.target_extension, ".py")
             # print(f'pyuic6  {item} -o {output}')
-            os.system(f'pyuic6  {item} -o {output}')
+            os.system(f'pyuic5  {item} -o {output}')

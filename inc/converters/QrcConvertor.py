@@ -13,4 +13,4 @@ class Qrc(BaseConvertor):
         list_qrc = self.find(self.base_folder)
         for item in list_qrc:
             # print(f'pyrcc6 {item} -o {str(item).replace(self.target_extension,".py")}')
-            os.system(f'pyrcc5 {item} -o {str(item).replace(self.target_extension, ".py")}')
+            os.system(f'pyrcc5 {item} -o {str(item).replace(self.target_extension, "_rc").join(".py")}')
