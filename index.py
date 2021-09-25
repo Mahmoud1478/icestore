@@ -13,5 +13,6 @@ class Index:
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = HomeController()
+    app.setStyleSheet(open("assets/styles/ice.qss", "r", encoding="utf8").read())
     window.show()
     app.exec()
