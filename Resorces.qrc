@@ -5,6 +5,9 @@
     <file>assets/images/bg_home.jpg</file>
   </qresource>
   <qresource prefix="images">
+    <file>assets/images/images/ice3.jpg</file>
+    <file>assets/images/images/ice1.png</file>
+    <file>assets/images/images/ice2.png</file>
     <file>assets/images/images/PyDracula.png</file>
     <file>assets/images/images/PyDracula_horizontal.png</file>
     <file>assets/images/images/PyDracula_vertical.png</file>
