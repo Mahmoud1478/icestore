@@ -53,7 +53,7 @@ class HomeController(QMainWindow):
                     {
                         "name": "الأقسام",
                         "icon": "assets/images/icons/cil-bell.png",
-                        "callback": lambda: print("clicked")
+                        "callback": lambda: self.stackedWidget.setCurrentIndex(1)
                     },
                     {
                         "name": "اصناف",
