@@ -612,7 +612,7 @@ QToolBox QWidget{
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_8">
           <property name="spacing">
-           <number>0</number>
+           <number>10</number>
           </property>
           <property name="leftMargin">
            <number>0</number>
@@ -894,12 +894,56 @@ QToolBox QWidget{
           </item>
           <item>
            <widget class="QFrame" name="contentBottom">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>100</height>
+             </size>
+            </property>
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
             <property name="frameShadow">
              <enum>QFrame::Raised</enum>
             </property>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QFrame" name="bottomBar">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <widget class="QFrame" name="pagesContainer">
+                <property name="geometry">
+                 <rect>
+                  <x>370</x>
+                  <y>60</y>
+                  <width>120</width>
+                  <height>80</height>
+                 </rect>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::StyledPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+               </widget>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="content">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -1138,7 +1182,7 @@ QToolBox QWidget{
                   <height>0</height>
                  </size>
                 </property>
-                <layout class="QVBoxLayout" name="topMenuLayout" stretch="">
+                <layout class="QVBoxLayout" name="topMenuLayout">
                  <property name="spacing">
                   <number>0</number>
                  </property>
