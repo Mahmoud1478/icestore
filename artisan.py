@@ -33,7 +33,9 @@ class {name.capitalize()}Model(BaseModel):
     @staticmethod
     def controller(path, name):
         with open(f"{path}/{name.lower()}controller.py", "w", encoding="utf8") as file:
-            file.write(f'''from PyQt5.QtWidgets import *
+            file.write(f'''from modules.{name.lower()}.model.{name.capitalize()}Model import {name.capitalize()}Model
+from PyQt5.QtWidgets import *
+from PyQt5.uic import loadUi
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
@@ -41,7 +43,7 @@ from PyQt5.QtGui import *
 class {name.capitalize()}Controller():
     def __init__(self):
         super({name.capitalize()}Controller, self).__init__()
-        pass''')
+        loadUi("ui/{name.lower()}/{name.lower()}.ui", self)''')
 
     def create_module(self, name):
         module_path = os.path.join(os.getcwd(), f"modules\\{name}")
