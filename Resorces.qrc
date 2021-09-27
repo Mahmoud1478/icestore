@@ -5,6 +5,10 @@
     <file>assets/images/bg_home.jpg</file>
   </qresource>
   <qresource prefix="images">
+    <file>assets/images/images/logo1.png</file>
+    <file>assets/images/images/logo2.png</file>
+    <file>assets/images/images/logo3.png</file>
+    <file>assets/images/images/logo4.png</file>
     <file>assets/images/images/ice3.jpg</file>
     <file>assets/images/images/ice1.png</file>
     <file>assets/images/images/ice2.png</file>

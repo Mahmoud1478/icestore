@@ -54,6 +54,8 @@ class {name.capitalize()}Controller():
             os.mkdir(os.path.join(module_path, "model"))
             self.model(os.path.join(module_path, "model"), name)
             self.controller(module_path, name)
+            with open(os.path.join(module_path, f"ui\\{name.lower()}.py"), "w", encoding="utf8"):
+                pass
             if not os.path.isdir(module_path_ui):
                 os.mkdir(module_path_ui)
                 with open(os.path.join(os.getcwd(), f"ui\\{name}\\{name}.ui"), "w", encoding="utf8"):

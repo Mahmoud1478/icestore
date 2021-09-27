@@ -528,5 +528,9 @@ Button */
 	background-color: #546391;
 	border: 2px solid #ff79c6;
 }
+#pagesContainer QPushButton:disabled {
+
+
+}
 
 

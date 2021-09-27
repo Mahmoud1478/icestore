@@ -11,16 +11,26 @@ class CategoriesController(QWidget):
         loadUi("ui/categories/categories.ui", self)
         self.load_date()
         self.edit_off()
+        self.event_handler()
+        self.ui()
+
+    def ui(self):
+        self.line_placeholder()
+
+    def event_handler(self):
         self.cancle_btn.clicked.connect(self.edit_off)
         self.table.doubleClicked.connect(self.edit_signal)
-        self.add_new.clicked.connect(self.create)
+        self.add_new.clicked.connect(self.create_new)
+        self.table.resizeEvent = self.table_ui
 
     def load_date(self):
         categories = CategoriesModel().get_fields().get_all()
         self.table.setRowCount(len(categories))
         for row, row_date in enumerate(categories):
             for column, data in enumerate(row_date):
-                self.table.setItem(row, column, QTableWidgetItem(str(data)))
+                item = QTableWidgetItem(str(data))
+                item.setTextAlignment(Qt.AlignCenter)
+                self.table.setItem(row, column, item)
 
     def edit_on(self):
         self.add_new.setEnabled(False)
@@ -38,7 +48,18 @@ class CategoriesController(QWidget):
         name = self.table.item(row, 0).text()
         self.name.setText(str(name))
 
-    def create(self):
+    def create_new(self):
         if self.name.text() != "":
             CategoriesModel().create((self.name.text(),)).save()
             self.load_date()
+
+    def table_ui(self, e=None):
+        width = self.table.width()
+        self.table.setColumnWidth(0, width * 0.85)
+        self.table.setColumnWidth(1, width * .10)
+
+    def line_placeholder(self):
+        palette = self.name.palette()
+        text_color = QColor("white")
+        palette.setColor(QPalette.PlaceholderText, text_color)
+        self.name.setPalette(palette)
