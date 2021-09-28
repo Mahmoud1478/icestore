@@ -1,14 +1,14 @@
+from modules.units.model.UnitsModel import UnitsModel
 from PyQt5.QtWidgets import *
+from PyQt5.uic import loadUi
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.uic import loadUi
-from modules.categories.model.CategoriesModel import CategoriesModel
 
 
-class CategoriesController(QWidget):
+class UnitsController(QWidget):
     def __init__(self):
-        super(CategoriesController, self).__init__()
-        loadUi("ui/categories/categories.ui", self)
+        super(UnitsController, self).__init__()
+        loadUi("ui/units/units.ui", self)
         self.old_name = None
         self.load_date()
         self.edit_off()
@@ -26,7 +26,7 @@ class CategoriesController(QWidget):
         self.table.resizeEvent = self.table_ui
 
     def load_date(self):
-        categories = CategoriesModel().get_fields().get_all()
+        categories = UnitsModel().get_fields().get_all()
         self.table.setRowCount(len(categories))
         for row, row_date in enumerate(categories):
             for column, data in enumerate(row_date):
@@ -55,7 +55,7 @@ class CategoriesController(QWidget):
 
     def create_new(self):
         if self.name.text() != "":
-            CategoriesModel().create((self.name.text(),)).save()
+            UnitsModel().create((self.name.text(),)).save()
             self.load_date()
             self.name.setText("")
 
@@ -73,7 +73,7 @@ class CategoriesController(QWidget):
     def update_item(self):
         name = self.name.text()
         if name != "":
-            CategoriesModel().update(['name = %s', (self.old_name,)], (name,)).save()
+            UnitsModel().update(['name = %s', (self.old_name,)], (name,)).save()
             self.load_date()
             self.name.setText("")
             self.edit_off()

@@ -999,6 +999,9 @@ QToolBox QWidget{
                     <widget class="QStackedWidget" name="stackedWidget">
                      <widget class="QWidget" name="home"/>
                      <widget class="CategoriesController" name="categoies"/>
+                     <widget class="QWidget" name="items"/>
+                     <widget class="QWidget" name="stores"/>
+                     <widget class="UnitsController" name="units"/>
                     </widget>
                    </item>
                   </layout>
@@ -1609,6 +1612,12 @@ background-repeat: no-repeat</string>
    <class>CategoriesController</class>
    <extends>QWidget</extends>
    <header>modules/categories/categoriescontroller.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UnitsController</class>
+   <extends>QWidget</extends>
+   <header>modules/units/unitscontroller.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
