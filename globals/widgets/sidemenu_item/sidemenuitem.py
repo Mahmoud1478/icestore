@@ -15,6 +15,7 @@ class SideMenuItem(QWidget):
         self.alignment = alignment
         self.menu_status = False
         self.menu_frame = None
+        self.main_btn = None
         self.setObjectName("container")
         self.default_style = {
             "widget": {
@@ -25,7 +26,9 @@ class SideMenuItem(QWidget):
             },
             "main_btn": {
                 "color": "white",
-                "icon": "assets/images/icons/cil-chevron-bottom.png"
+                "icon": "assets/images/icons/icon_settings.png",
+                "arrow_down": "assets/images/icons/cil-arrow-bottom.png",
+                "arrow_up": "assets/images/icons/cil-arrow-top.png"
             },
             "item_btn": {
                 "color": "white"
@@ -46,12 +49,12 @@ class SideMenuItem(QWidget):
                 background-color: transparent;
             }}
             #container #main_btn {{
-                background-image:url({self.style["main_btn"]["icon"]});	
+                background-image:url({self.style["main_btn"]["arrow_down"]});	
                 background-position: {self.revers_alignment(self.alignment)} center;
-                padding-{self.alignment}: 100px;
+                padding-{self.alignment}: 22px;
                 border-{self.revers_alignment(self.alignment)}: 22px solid transparent;
                 color: {self.style["main_btn"]["color"]};
-                text-align: {self.revers_alignment(self.alignment)};
+                text-align: {self.alignment};
             }}
             #container #main_btn:hover {{
             background-color: #bd93f9;
@@ -64,8 +67,8 @@ class SideMenuItem(QWidget):
                 background-position: {self.alignment} center;
                 text-align: {self.alignment};
                 color: {self.style["item_btn"]["color"]};
-                border-{self.alignment}: 40px solid transparent;
-                padding-{self.revers_alignment(self.alignment)}: 80px;
+                border-{self.alignment}: 22px solid transparent;
+                padding-{self.revers_alignment(self.alignment)}: 48px;
             }}
             #sideMenuItemMainMenuFrame QPushButton:hover {{
                 background-color: #bd93f9;
@@ -78,26 +81,31 @@ class SideMenuItem(QWidget):
         self.frame_height = len(self.items) * (self.height - 5)
         self.ui()
         self.setMaximumHeight(self.height + self.frame_height)
-        self.setLayoutDirection(Qt.RightToLeft)
+        if self.alignment.lower() == "right":
+            self.setLayoutDirection(Qt.RightToLeft)
+        else:
+            self.setLayoutDirection(Qt.LeftToRight)
 
     def ui(self):
         self.menu_frame_func()
+        self.top_btn()
         bg_layout = QVBoxLayout(self)
         self.setLayout(bg_layout)
         bg_layout.setSpacing(0)
         bg_layout.setContentsMargins(0, 0, 0, 0)
-        bg_layout.addWidget(self.top_btn())
+        bg_layout.addWidget(self.main_btn)
         bg_layout.addWidget(self.menu_frame)
 
     def top_btn(self):
-        main_btn = QPushButton(str(self.name))
-        main_btn.setObjectName("main_btn")
-        main_btn.setMinimumHeight(self.height)
-        main_btn.setMaximumHeight(self.height)
-        main_btn.clicked.connect(self.expand_menu)
-        main_btn.setIcon(QIcon("assets/images/icons/icon_settings.png"))
-        # main_btn.setLayoutDirection(Qt.RightToLeft)
-        return main_btn
+        self.main_btn = QPushButton(str(self.name))
+        self.main_btn.setObjectName("main_btn")
+        self.main_btn.setMinimumHeight(self.height)
+        self.main_btn.setMaximumHeight(self.height)
+        self.main_btn.clicked.connect(self.expand_menu)
+        if self.alignment == "right":
+            self.main_btn.setLayoutDirection(Qt.LeftToRight)
+        else:
+            self.main_btn.setLayoutDirection(Qt.RightToLeft)
 
     def menu_frame_func(self):
         self.menu_frame = QFrame()
@@ -128,6 +136,7 @@ class SideMenuItem(QWidget):
 
     def animate(self, start, end, widget):
         self.animation = QPropertyAnimation(widget, b"maximumHeight")
+        self.animation.stop()
         self.animation.setDuration(300)
         self.animation.setStartValue(start)
         self.animation.setEndValue(end)
@@ -137,9 +146,16 @@ class SideMenuItem(QWidget):
     def expand_menu(self):
         if self.menu_status:
             self.animate(self.frame_height, 0, self.menu_frame)
+            self.main_btn.setStyleSheet(f'''
+            background-image:url({self.style["main_btn"]["arrow_down"]});
+            ''')
             self.menu_status = False
             self.open_signal.emit(- self.frame_height)
         else:
             self.animate(0, self.frame_height, self.menu_frame)
+            self.main_btn.setStyleSheet(f'''
+            background-image:url({self.style["main_btn"]["arrow_up"]});
+            ''')
+
             self.menu_status = True
             self.open_signal.emit(self.frame_height)

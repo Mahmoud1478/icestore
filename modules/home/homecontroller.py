@@ -10,6 +10,7 @@ import Resorces_rc
 class HomeController(QMainWindow):
     def __init__(self, username="اسم المستخدم"):
         super(HomeController, self).__init__()
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('ElmalaHSoFt.IceStore.1.0.0')
         QFontDatabase.addApplicationFont('assets/fonts/Cairo-Regular.ttf')
         loadUi("ui/home/home.ui", self)
         self.available_space_menu = None
@@ -19,13 +20,14 @@ class HomeController(QMainWindow):
         self.username = username
         self.menu_height = 45
         self.animation = None
+        self.shadow = None
         self.menus = None
 
-        my_app_id = 'ElmalaHSoFt.FutureTouch.0.3'
-        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(my_app_id)
+        self.extraLabel.setText(str(self.username))
+
         self.event_handler()
         self.add_menus()
-        self.extraLabel.setText(str(self.username))
+        self.shadow_()
 
     def event_handler(self):
         self.home_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
@@ -36,15 +38,13 @@ class HomeController(QMainWindow):
         self.user.clicked.connect(self.toggle_user)
 
     def menu_resize(self, event):
-        self.available_space_menu = self.scrollContents.height() - ((len(self.menus) * self.menu_height) + 0)
+        self.available_space_menu = self.scrollContents.height() - ((len(self.menus) * self.menu_height) + self.menu_height)
 
     def toggle_menu(self):
         if self.main_menu_status:
-            # self.animate(self.leftMenuBg, 200, 0, b"minimumWidth")
             self.animate(self.leftMenuBg, 200, 0, b"maximumWidth")
             self.main_menu_status = False
         else:
-            # self.animate(self.leftMenuBg, 0, 200, b"minimumWidth")
             self.animate(self.leftMenuBg, 0, 200, b"maximumWidth")
             self.main_menu_status = True
 
@@ -91,22 +91,12 @@ class HomeController(QMainWindow):
                 "name": "محازن",
                 "submenu": [
                     {
-                        "name": "الأقسام",
+                        "name": "تحويل بين المخازن",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
                     {
-                        "name": "اصناف",
-                        "icon": "assets/images/icons/cil-bell.png",
-                        "callback": lambda: print("clicked")
-                    },
-                    {
-                        "name": "المخازن",
-                        "icon": "assets/images/icons/cil-bell.png",
-                        "callback": lambda: print("clicked")
-                    },
-                    {
-                        "name": "وحدات",
+                        "name": "جرد المخازن",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
@@ -117,22 +107,27 @@ class HomeController(QMainWindow):
                 "name": "مشتريات",
                 "submenu": [
                     {
-                        "name": "الأقسام",
+                        "name": "اضافة فاتورة",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
                     {
-                        "name": "اصناف",
+                        "name": "عرض المشتريات",
+                        "icon": "assets/images/icons/cil-bell.png",
+                        "callback": lambda: print("clicked")
+                    },
+                ]
+            },
+            {
+                "name": "مبيعات",
+                "submenu": [
+                    {
+                        "name": "اضافة فاتورة",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
                     {
-                        "name": "المخازن",
-                        "icon": "assets/images/icons/cil-bell.png",
-                        "callback": lambda: print("clicked")
-                    },
-                    {
-                        "name": "وحدات",
+                        "name": "عرض الفواتير",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
@@ -140,28 +135,28 @@ class HomeController(QMainWindow):
                 ]
             },
             {
-                "name": "مبيعات",
+                "name": "عملاء وموردين",
                 "submenu": [
                     {
-                        "name": "الأقسام",
+                        "name": "اضافة عملاء",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
                     {
-                        "name": "اصناف",
+                        "name": "عرض العملاء",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
                     {
-                        "name": "المخازن",
+                        "name": "اضافة موردين",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
                     },
                     {
-                        "name": "وحدات",
+                        "name": "عرض الموردين",
                         "icon": "assets/images/icons/cil-bell.png",
                         "callback": lambda: print("clicked")
-                    }
+                    },
 
                 ]
             },
@@ -242,14 +237,13 @@ class HomeController(QMainWindow):
                     },
 
                 ]
-            }
+            },
         ]
         for menu in self.menus:
             item = SideMenuItem(name=menu["name"], items=menu["submenu"], height=self.menu_height)
             self.topMenuLayout.addWidget(item)
             item.open_signal.connect(self.open_signal_fun)
         self.topMenuLayout.setAlignment(Qt.AlignTop)
-        # self.scrollContents.setMinimumHeight(len(self.menus) * self.menu_height)
 
     def open_signal_fun(self, value):
         if self.available_space_menu - self.open_menus_space < value > 0 or \
@@ -260,8 +254,23 @@ class HomeController(QMainWindow):
 
     def animate(self, widget, start, end, prop):
         self.animation = QPropertyAnimation(widget, prop)
+        self.animation.stop()
         self.animation.setDuration(300)
         self.animation.setStartValue(start)
         self.animation.setEndValue(end)
         self.animation.setEasingCurve(QEasingCurve.Linear)
         self.animation.start()
+
+    def shadow_(self):
+        blur = 9
+        self.shadow = QGraphicsDropShadowEffect()
+        self.shadow.setBlurRadius(blur)
+        self.shadow.setXOffset(0)
+        self.shadow.setYOffset(0)
+        self.shadow.setColor(QColor(0, 0, 0, 60))
+        '''  self.chart_5.setGraphicsEffect(self.shadow)
+        self.chart_4.setGraphicsEffect(self.shadow)
+        self.chart_3.setGraphicsEffect(self.shadow)
+        self.chart_2.setGraphicsEffect(self.shadow)'''
+        self.chart.setGraphicsEffect(self.shadow)
+        self.chart.setAttribute(Qt.WA_TranslucentBackground)

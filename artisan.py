@@ -40,7 +40,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 
-class {name.capitalize()}Controller():
+class {name.capitalize()}Controller(QWidget):
     def __init__(self):
         super({name.capitalize()}Controller, self).__init__()
         loadUi("ui/{name.lower()}/{name.lower()}.ui", self)''')
