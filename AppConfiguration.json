@@ -18,7 +18,7 @@
         "addDate": [
             "assets",
             "globals",
-            "inc",
+            "inc/db",
             "modules",
             "Resorces_rc.py",
             "iceStore.ico"
