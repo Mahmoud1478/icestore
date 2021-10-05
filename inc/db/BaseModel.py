@@ -12,7 +12,7 @@ class BaseModel(Connection):
         self.query(f"select * from {self.table_name}")
         return self.get_all()
 
-    def get_fields(self, fields=None):
+    def get_fields(self, *fields):
         """ get all data of the table contain your own fields
              requires 1 optional parameters
              (
@@ -20,11 +20,13 @@ class BaseModel(Connection):
                             but you can change it by passing your own fields
              )
         """
-        if fields is None:
+        if len(fields) == 0:
             fields = self.fields
-        return self.query(f"select {fields} from {self.table_name} ")
+        target_field = ",".join(fields)
+        return self.query(f"select {target_field} from {self.table_name}")
 
-    def where(self, conditions, values, fields=None):
+    def where(self, *args, bind="and", **kwargs):
+
         """
             get all data of the table   it requires 2 parameters
             (
@@ -39,12 +41,23 @@ class BaseModel(Connection):
                         by passing your own fields
              )
         """
+        if len(args) == 0:
+            args = self.fields
+        conditions = ''
+        last_key = list(kwargs.keys())[-1]
+        for key, value in kwargs.items():
+            val = str(value).split(" ")
+            if last_key == key:
+                conditions += f'{key} {val[0]} "{val[1]}"'
+            else:
+                conditions += f'{key} {val[0]} "{val[1]}" {bind} '
+        # return f"select {','.join(args)} from {self.table_name} where {str(conditions)}"
+        return self.query(f"select {','.join(args)} from {self.table_name} where {str(conditions)}")
 
-        if fields is None:
-            fields = self.fields
-        return self.query(f"select {fields} from {self.table_name} where {conditions}", values)
+    def between(self):
+        pass
 
-    def delete(self, conditions, values):
+    def delete(self, bind="and", **kwargs):
         """
             insert things in database it requires 2 parameters
             (
@@ -54,7 +67,16 @@ class BaseModel(Connection):
                            conditions' str var
             )
         """
-        return self.query(f"delete  from {self.table_name} where {conditions}", values)
+        conditions = ''
+        last_key = list(kwargs.keys())[-1]
+        for key, value in kwargs.items():
+            val = str(value).split(" ")
+            if last_key == key:
+                conditions += f'{key} {val[0]} "{val[1]}"'
+            else:
+                conditions += f'{key} {val[0]} "{val[1]}" {bind} '
+        # return f"delete  from {self.table_name} where {conditions}"
+        return self.query(f"delete  from {self.table_name} where {conditions}")
 
     def create(self, values, fields=None):
         """

@@ -1,0 +1,38 @@
+{
+    "MyAppName": "IceStore",
+    "MyAppVersion": "1.0",
+    "MyAppPublisher": "ElmlaHSoft",
+    "MyAppURL": "",
+    "MyAppIcon": "iceStore.ico",
+
+    "database":{
+        "host":"localhost",
+        "name":"ice_store",
+        "user":"root",
+        "password":"toor"
+    },
+
+    "exe": {
+        "executable": "index.py",
+        "outputFolder": "exe",
+        "addDate": [
+            "assets",
+            "globals",
+            "inc",
+            "modules",
+            "Resorces_rc.py",
+            "iceStore.ico"
+        ]
+    },
+
+    "setupWizard": {
+        "MyAppExeName":"exe/IceStore/IceStore.exe",
+        "runAsAdministrator":false,
+        "OutputDir": "build",
+        "OutputBaseFilename": "IceStore",
+        "Password": "",
+        "files": [
+            "exe/IceStore"
+        ]
+    }
+}

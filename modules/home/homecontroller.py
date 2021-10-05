@@ -20,14 +20,14 @@ class HomeController(QMainWindow):
         self.username = username
         self.menu_height = 45
         self.animation = None
-        self.shadow = None
+        # self.shadow = None
         self.menus = None
 
         self.extraLabel.setText(str(self.username))
 
         self.event_handler()
         self.add_menus()
-        self.shadow_()
+        # self.set_shadow()
 
     def event_handler(self):
         self.home_btn.clicked.connect(lambda: self.stackedWidget.setCurrentIndex(0))
@@ -261,16 +261,15 @@ class HomeController(QMainWindow):
         self.animation.setEasingCurve(QEasingCurve.Linear)
         self.animation.start()
 
-    def shadow_(self):
-        blur = 9
-        self.shadow = QGraphicsDropShadowEffect()
-        self.shadow.setBlurRadius(blur)
-        self.shadow.setXOffset(0)
-        self.shadow.setYOffset(0)
-        self.shadow.setColor(QColor(0, 0, 0, 60))
+    def set_shadow(self):
+        blur = 20
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(blur)
+        shadow.setXOffset(0)
+        shadow.setYOffset(0)
+        shadow.setColor(QColor(170, 85, 255,))
         '''  self.chart_5.setGraphicsEffect(self.shadow)
         self.chart_4.setGraphicsEffect(self.shadow)
         self.chart_3.setGraphicsEffect(self.shadow)
         self.chart_2.setGraphicsEffect(self.shadow)'''
-        self.chart.setGraphicsEffect(self.shadow)
-        self.chart.setAttribute(Qt.WA_TranslucentBackground)
+        self.widget_2.setGraphicsEffect(shadow)

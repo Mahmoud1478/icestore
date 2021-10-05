@@ -1,7 +1,6 @@
 import sys
 import os
 
-global args
 args = sys.argv[1:]
 
 
@@ -14,6 +13,9 @@ class Artisan:
             elif args[0].split(":")[1] == "model":
                 model = args[1].split(":")
                 self.create_model(model[1], model[0])
+            elif args[0].split(":")[1] == "controller":
+                controller = args[1].split(":")
+                self.create_controller(controller[1], controller[0])
 
         elif args[0].split(":")[0] == "convert":
             print("convert")
@@ -45,6 +47,22 @@ class {name.capitalize()}Controller(QWidget):
         super({name.capitalize()}Controller, self).__init__()
         loadUi("ui/{name.lower()}/{name.lower()}.ui", self)''')
 
+    @staticmethod
+    def sec_controller(path, name, module_name):
+        with open(f"{path}/{name.lower()}controller.py", "w", encoding="utf8") as file:
+            file.write(
+                f'''from modules.{module_name.lower()}.model.{module_name.capitalize()}Model import {module_name.capitalize()}Model
+from PyQt5.QtWidgets import *
+from PyQt5.uic import loadUi
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+
+
+class {name.capitalize()}Controller(QWidget):
+    def __init__(self):
+        super({name.capitalize()}Controller, self).__init__()
+        # loadUi("ui/{module_name.lower()}/{name.lower()}.ui", self)''')
+
     def create_module(self, name):
         module_path = os.path.join(os.getcwd(), f"modules\\{name}")
         module_path_ui = os.path.join(os.getcwd(), f"ui\\{name}")
@@ -52,6 +70,7 @@ class {name.capitalize()}Controller(QWidget):
             os.mkdir(module_path)
             os.mkdir(os.path.join(module_path, "ui"))
             os.mkdir(os.path.join(module_path, "model"))
+            os.mkdir(os.path.join(module_path, "controllers"))
             self.model(os.path.join(module_path, "model"), name)
             self.controller(module_path, name)
             with open(os.path.join(module_path, f"ui\\{name.lower()}.py"), "w", encoding="utf8"):
@@ -72,5 +91,9 @@ class {name.capitalize()}Controller(QWidget):
     def create_model(self, path, name):
         self.model(os.path.join(os.getcwd(), f"modules\\{path}\\model"), name)
 
+    def create_controller(self, path, name):
+        self.sec_controller(os.path.join(os.getcwd(), f"modules\\{path}\\controllers"), name, path)
 
-Artisan()
+
+if __name__ == "__name__":
+    Artisan()

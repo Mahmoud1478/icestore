@@ -10,7 +10,7 @@ class UnitsController(QWidget):
         super(UnitsController, self).__init__()
         loadUi("ui/units/units.ui", self)
         self.old_name = None
-        self.load_date()
+        # self.load_date()
         self.edit_off()
         self.event_handler()
         self.ui()

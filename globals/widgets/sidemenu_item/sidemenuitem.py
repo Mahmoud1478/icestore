@@ -8,22 +8,16 @@ class SideMenuItem(QWidget):
 
     def __init__(self, name, height, items=None, alignment="right", style=None, ):
         super(SideMenuItem, self).__init__()
-        self.height = height
-        self.setMinimumHeight(self.height)
-        self.name = name
-        self.items = items
         self.alignment = alignment
         self.menu_status = False
         self.menu_frame = None
+        self.animation = None
         self.main_btn = None
-        self.setObjectName("container")
+        self.height = height
+        self.items = items
+        self.name = name
+
         self.default_style = {
-            "widget": {
-                "top": "2px solid  #f8f8f2",
-                "bottom": "2px solid  #f8f8f2",
-                "left": "none",
-                "right": "none"
-            },
             "main_btn": {
                 "color": "white",
                 "icon": "assets/images/icons/icon_settings.png",
@@ -35,14 +29,13 @@ class SideMenuItem(QWidget):
             },
         }
         self.style = style if style is not None else self.default_style
+        self.frame_height = len(self.items) * (self.height - 5)
+        self.setMaximumHeight(self.height + self.frame_height)
+
+        self.setMinimumHeight(self.height)
+        self.setObjectName("container")
+
         self.setStyleSheet(f'''
-            #container{{	
-                border-top: {self.style["widget"]["top"]};
-                border-left:{self.style["widget"]["left"]} ;
-                border-right:{self.style["widget"]["right"]};
-                border-bottom:{self.style["widget"]["bottom"]};
-                  
-            }}
             #container QPushButton{{
                 background-repeat: no-repeat;
                 border: none;
@@ -78,9 +71,9 @@ class SideMenuItem(QWidget):
                 color: rgb(255, 255, 255);
             }}
 ''')
-        self.frame_height = len(self.items) * (self.height - 5)
+
         self.ui()
-        self.setMaximumHeight(self.height + self.frame_height)
+
         if self.alignment.lower() == "right":
             self.setLayoutDirection(Qt.RightToLeft)
         else:
@@ -102,7 +95,7 @@ class SideMenuItem(QWidget):
         self.main_btn.setMinimumHeight(self.height)
         self.main_btn.setMaximumHeight(self.height)
         self.main_btn.clicked.connect(self.expand_menu)
-        if self.alignment == "right":
+        if self.alignment.lower() == "right":
             self.main_btn.setLayoutDirection(Qt.LeftToRight)
         else:
             self.main_btn.setLayoutDirection(Qt.RightToLeft)
@@ -116,7 +109,7 @@ class SideMenuItem(QWidget):
         self.menu_frame.setMaximumHeight(0)
         self.menu_frame.setLayout(layout)
         layout.setAlignment(Qt.AlignTop)
-        self.menu_frame.setLayoutDirection(Qt.RightToLeft)
+
         for item in self.items:
             btn = QPushButton(str(item["name"]))
             btn.setStyleSheet(f'''
@@ -125,6 +118,7 @@ class SideMenuItem(QWidget):
             btn.setMinimumHeight(self.height - 5)
             btn.setMaximumHeight(self.height - 5)
             btn.clicked.connect(item['callback'])
+            btn.setLayoutDirection(Qt.RightToLeft)
             layout.addWidget(btn)
 
     @staticmethod

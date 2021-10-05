@@ -14,6 +14,7 @@ class CategoriesController(QWidget):
         self.edit_off()
         self.event_handler()
         self.ui()
+        self.test()
 
     def ui(self):
         self.line_placeholder()
@@ -77,3 +78,6 @@ class CategoriesController(QWidget):
             self.load_date()
             self.name.setText("")
             self.edit_off()
+
+    def test(self):
+        pass
