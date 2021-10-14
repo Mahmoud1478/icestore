@@ -4,12 +4,12 @@ from inc.db.Connection import Connection
 class BaseModel(Connection):
     def __init__(self):
         super(BaseModel, self).__init__()
-        self.table_name = None
-        self.fields = ""
+        self._table_name = ""
+        self._fields = "",
 
     def all(self):
         """ get all data of the table  contains all fields """
-        self.query(f"select * from {self.table_name}")
+        self._query(f"select * from {self._table_name}")
         return self.get_all()
 
     def get_fields(self, *fields):
@@ -21,9 +21,10 @@ class BaseModel(Connection):
              )
         """
         if len(fields) == 0:
-            fields = self.fields
+            fields = self._fields
         target_field = ",".join(fields)
-        return self.query(f"select {target_field} from {self.table_name}")
+        return self._query(f"select {target_field} from {self._table_name}")
+        # return f"select {target_field} from {self._table_name}"
 
     def where(self, *args, bind="and", **kwargs):
 
@@ -42,7 +43,7 @@ class BaseModel(Connection):
              )
         """
         if len(args) == 0:
-            args = self.fields
+            args = self._fields
         conditions = ''
         last_key = list(kwargs.keys())[-1]
         for key, value in kwargs.items():
@@ -52,7 +53,7 @@ class BaseModel(Connection):
             else:
                 conditions += f'{key} {val[0]} "{val[1]}" {bind} '
         # return f"select {','.join(args)} from {self.table_name} where {str(conditions)}"
-        return self.query(f"select {','.join(args)} from {self.table_name} where {str(conditions)}")
+        return self._query(f"select {','.join(args)} from {self._table_name} where {str(conditions)}")
 
     def between(self):
         pass
@@ -76,7 +77,7 @@ class BaseModel(Connection):
             else:
                 conditions += f'{key} {val[0]} "{val[1]}" {bind} '
         # return f"delete  from {self.table_name} where {conditions}"
-        return self.query(f"delete  from {self.table_name} where {conditions}")
+        return self._query(f"delete  from {self._table_name} where {conditions}")
 
     def create(self, values, fields=None):
         """
@@ -93,7 +94,7 @@ class BaseModel(Connection):
         """
 
         if fields is None:
-            fields = self.fields
+            fields = self._fields
         placeholder = ""
         counter = len(values)
         for i in range(counter):
@@ -101,7 +102,7 @@ class BaseModel(Connection):
                 placeholder += '%s,'
             else:
                 placeholder += '%s'
-        return self.query(f"insert  into {self.table_name} ({fields}) values({placeholder})", values)
+        return self._query(f"insert  into {self._table_name} ({fields}) values({placeholder})", values)
 
     def update(self, conditions, values, fields=None):
         """
@@ -120,7 +121,7 @@ class BaseModel(Connection):
              )
         """
         if fields is None:
-            fields = self.fields
+            fields = self._fields
         counter = len(values)
         fields_list = fields.split(",")
         placeholder = ""
@@ -130,4 +131,4 @@ class BaseModel(Connection):
             else:
                 placeholder += f'{fields_list[i]} = %s'
             i += 1
-        return self.query(f"update {self.table_name} set {placeholder} where {conditions[0]}", values + conditions[1])
+        return self._query(f"update {self._table_name} set {placeholder} where {conditions[0]}", values + conditions[1])

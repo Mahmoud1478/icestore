@@ -1,6 +1,4 @@
 import MySQLdb
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtGui import QIcon
 import json
 
 with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
@@ -14,18 +12,11 @@ class Connection:
                 host=configuration["host"],
                 user=configuration["user"],
                 password=configuration["password"],
-                database=configuration["name"]
             )
             self.__db.set_character_set("utf8mb4")
             self.__cursor = self.__db.cursor()
         except Exception as Error:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText(str(Error))
-            msg.setWindowTitle("خطا")
-            msg.setWindowIcon(QIcon("images/logo.png"))
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
+            print(Error)
 
     def close(self):
         self.__db.close()
@@ -39,7 +30,7 @@ class Connection:
     def save(self):
         self.__db.commit()
 
-    def _query(self, query, values=None):
+    def query(self, query, values=None):
         self.__cursor.execute(str(query), values)
         return self
 

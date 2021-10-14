@@ -80,4 +80,6 @@ class CategoriesController(QWidget):
             self.edit_off()
 
     def test(self):
-        pass
+        model = CategoriesModel()
+        data = model.get_fields()
+        print(data)

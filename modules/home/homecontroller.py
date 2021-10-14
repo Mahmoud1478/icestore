@@ -24,7 +24,6 @@ class HomeController(QMainWindow):
         self.menus = None
 
         self.extraLabel.setText(str(self.username))
-
         self.event_handler()
         self.add_menus()
         # self.set_shadow()

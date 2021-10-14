@@ -29,8 +29,8 @@ class Artisan:
 class {name.capitalize()}Model(BaseModel):
     def __init__(self):
         super({name.capitalize()}Model, self).__init__()
-        self.table_name = '{name.lower()}'
-        self.fields = None''')
+        self._table_name = '{name.lower()}'
+        self._fields = '', ''')
 
     @staticmethod
     def controller(path, name):
@@ -93,6 +93,12 @@ class {name.capitalize()}Controller(QWidget):
 
     def create_controller(self, path, name):
         self.sec_controller(os.path.join(os.getcwd(), f"modules\\{path}\\controllers"), name, path)
+
+    def migrations(self):
+        pass
+
+    def migrate(self):
+        pass
 
 
 if __name__ == "__name__":
