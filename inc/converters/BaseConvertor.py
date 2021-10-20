@@ -13,7 +13,7 @@ class BaseConvertor:
         else:
             target_path = os.path.join(self.current_path, str(path).replace("/", "\\"))
 
-        return glob.glob(f'{target_path}\*{self.target_extension}')
+        return glob.glob(f'{target_path}\\*{self.target_extension}')
 
     def convert(self):
         pass

@@ -12,6 +12,7 @@ class Connection:
                 host=configuration["host"],
                 user=configuration["user"],
                 password=configuration["password"],
+                database=configuration["name"]
             )
             self.__db.set_character_set("utf8mb4")
             self.__cursor = self.__db.cursor()
@@ -30,9 +31,12 @@ class Connection:
     def save(self):
         self.__db.commit()
 
-    def query(self, query, values=None):
+    def _query(self, query, values=None):
         self.__cursor.execute(str(query), values)
         return self
 
     def last_one(self):
         return self.__cursor.lastrowid
+
+    def rollback(self):
+        return self.__cursor.rollback()

@@ -9,7 +9,8 @@
         "host":"localhost",
         "name":"ice_store",
         "user":"root",
-        "password":"toor"
+        "password":"toor",
+        "DefaultCursor": "dict"
     },
 
     "exe": {

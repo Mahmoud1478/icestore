@@ -4,7 +4,7 @@ from inc.db.Connection import Connection
 class BaseModel(Connection):
     def __init__(self):
         super(BaseModel, self).__init__()
-        self._table_name = ""
+        self._table_name = None
         self._fields = "",
 
     def all(self):
@@ -132,3 +132,5 @@ class BaseModel(Connection):
                 placeholder += f'{fields_list[i]} = %s'
             i += 1
         return self._query(f"update {self._table_name} set {placeholder} where {conditions[0]}", values + conditions[1])
+
+

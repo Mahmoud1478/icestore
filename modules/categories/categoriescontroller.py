@@ -27,7 +27,7 @@ class CategoriesController(QWidget):
         self.table.resizeEvent = self.table_ui
 
     def load_date(self):
-        categories = CategoriesModel().get_fields().get_all()
+        categories = CategoriesModel().set_cursor_type("tuple").get_fields().get_all()
         self.table.setRowCount(len(categories))
         for row, row_date in enumerate(categories):
             for column, data in enumerate(row_date):
@@ -81,5 +81,5 @@ class CategoriesController(QWidget):
 
     def test(self):
         model = CategoriesModel()
-        data = model.get_fields()
+        data = model.get_fields().get_all()
         print(data)
