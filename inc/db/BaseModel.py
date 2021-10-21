@@ -13,19 +13,20 @@ ORDERBY_STATEMENT = " ORDER BY {column} {how}"
 class BaseModel(Connection):
     def __init__(self):
         super(BaseModel, self).__init__()
-        self._table_name = self.__class__.__name__
+        self._table_name = str(self.__class__.__name__).replace("Model", "").lower()
+        self._statement = SELECT_STATEMENT.format(table=self._table_name, columns="*")
 
     def all(self):
         """ get all data of the table  contains all fields """
         self._statement = SELECT_STATEMENT.format(table=self._table_name, columns="*")
         return self.get()
 
-    def select(self, *args):
+    def select(self, *args) -> self:
         """ takes args and get  data of the table with your own fields"""
         self._statement = SELECT_STATEMENT.format(table=self._table_name, columns=",".join(args))
         return self
 
-    def where(self, condition: str, value: str, operator: str = "=", ):
+    def where(self, condition: str, value, operator: str = "=", ) -> self:
         """"""
         if "WHERE" in self._statement:
             self._statement += f" and {WHERE_STATEMENT.format(condition=condition, operator=operator)}"
@@ -34,37 +35,41 @@ class BaseModel(Connection):
         self._values.append(value)
         return self
 
-    def orWhere(self, condition: str, value: str, operator: str = "="):
+    def orWhere(self, condition: str, value: str, operator: str = "=") -> self:
         self._statement += OR_STATEMENT.format(condition=condition, operator=operator)
         self._values.append(value)
         return self
 
-    def between(self, column: str, start, end):
+    def between(self, column: str, start, end) -> self:
         self._statement += BETWEEN_STATEMENT.format(column=column, start=start, end=end)
         self._values.append(start)
         self._values.append(end)
         return self
 
-    def delete(self):
+    def delete(self) -> self:
         """"""
         self._statement += DELETE_STATEMENT.format(table=self._table_name)
         return self
 
-    def orderBy(self, column: str, how: str = "ASC"):
+    def orderBy(self, column: str, how: str = "ASC") -> self:
         self._statement += ORDERBY_STATEMENT.format(column=column, how=how)
         return self
 
-    def create(self, **kwargs):
+    def create(self, **kwargs) -> self:
         """"""
-        placeholder = []
+        placeholder = ""
+        last_key = list(kwargs)[-1]
         for key, value in kwargs.items():
-            placeholder.append("%s")
+            if key == last_key:
+                placeholder += "%s"
+            else:
+                placeholder += "%s,"
             self._values.append(value)
         self._statement = INSERT_STATEMENT.format(table=self._table_name, columns=",".join(kwargs.keys()),
-                                                  placeholder=",".join(placeholder))
+                                                  placeholder=placeholder)
         return self
 
-    def createRows(self, columns: list, values: list):
+    def createMany(self, columns: list, values: list) -> self:
         """"""
         placeholder = ""
         columnsCount = len(columns)
@@ -80,7 +85,7 @@ class BaseModel(Connection):
             self._values.append(value)
         return self
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> self:
         """"""
         last_key = list(kwargs)[-1]
         columns = ""
@@ -90,10 +95,9 @@ class BaseModel(Connection):
             else:
                 columns += f"{key}=%s,"
             self._values.append(value)
-
         self._statement = UPDATE_STATEMENT.format(table=self._table_name, columns=columns)
         return self
 
-    def sqlRow(self, sql):
+    def sqlRow(self, sql) -> self:
         self._statement += sql
         return self

@@ -63,11 +63,11 @@ class Connection:
         self.__db.commit()
         return self.__cursor.rowcount
 
-    def _query(self, query: str, values: tuple = None):
+    def _query(self, query: str, values: tuple = None) -> self:
         self.__cursor.execute(str(query), values)
         return self
 
-    def _query_(self, query: str, values: list = None):
+    def _query_(self, query: str, values: list = None) -> self:
         self.__cursor.executemany(str(query), values)
         return self
 
@@ -82,7 +82,7 @@ class Connection:
         else:
             return MySQLdb.cursors.Cursor
 
-    def set_cursor_type(self, cursors_type: str):
+    def set_cursor_type(self, cursors_type: str) -> self:
         self.__cursorType = str(cursors_type)
         self.__set_cursor()
         return self

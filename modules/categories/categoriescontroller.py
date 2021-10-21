@@ -9,24 +9,24 @@ class CategoriesController(QWidget):
     def __init__(self):
         super(CategoriesController, self).__init__()
         loadUi("ui/categories/categories.ui", self)
-        self.old_name = None
-        self.load_date()
-        self.edit_off()
-        self.event_handler()
+        self.oldName = None
+        self.loadData()
+        self.editOff()
+        self.eventHandler()
         self.ui()
         self.test()
 
     def ui(self):
-        self.line_placeholder()
+        self.linePlaceholder()
 
-    def event_handler(self):
-        self.table.doubleClicked.connect(self.edit_signal)
-        self.edit_btn.clicked.connect(self.update_item)
-        self.cancle_btn.clicked.connect(self.edit_off)
-        self.add_new.clicked.connect(self.create_new)
-        self.table.resizeEvent = self.table_ui
+    def eventHandler(self):
+        self.table.doubleClicked.connect(self.editSignal)
+        self.edit_btn.clicked.connect(self.updateItem)
+        self.cancle_btn.clicked.connect(self.editOff)
+        self.add_new.clicked.connect(self.createNew)
+        self.table.resizeEvent = self.tableUi
 
-    def load_date(self):
+    def loadData(self):
         categories = CategoriesModel().set_cursor_type("tuple").select("name").orderBy("id").get()
         self.table.setRowCount(len(categories))
         for row, row_date in enumerate(categories):
@@ -35,51 +35,51 @@ class CategoriesController(QWidget):
                 item.setTextAlignment(Qt.AlignCenter)
                 self.table.setItem(row, column, item)
 
-    def edit_on(self):
+    def editOn(self):
         self.add_new.setEnabled(False)
         self.edit_btn.setEnabled(True)
         self.cancle_btn.setEnabled(True)
 
-    def edit_off(self):
+    def editOff(self):
         self.add_new.setEnabled(True)
         self.edit_btn.setEnabled(False)
         self.cancle_btn.setEnabled(False)
         self.name.setText("")
-        self.old_name = None
+        self.oldName = None
 
-    def edit_signal(self):
-        self.edit_on()
+    def editSignal(self):
+        self.editOn()
         row = self.table.currentRow()
         name = self.table.item(row, 0).text()
         self.name.setText(str(name))
-        self.old_name = name
+        self.oldName = name
 
-    def create_new(self):
+    def createNew(self):
         if self.name.text() != "":
-            # CategoriesModel().create((self.name.text(),)).save()
-            self.load_date()
+            CategoriesModel().create(name=self.name.text()).save()
+            self.loadData()
             self.name.setText("")
 
-    def table_ui(self, e=None):
+    def tableUi(self, e=None):
         width = self.table.width()
         self.table.setColumnWidth(0, width * 0.85)
         self.table.setColumnWidth(1, width * .10)
 
-    def line_placeholder(self):
+    def linePlaceholder(self):
         palette = self.name.palette()
         text_color = QColor("white")
         palette.setColor(QPalette.PlaceholderText, text_color)
         self.name.setPalette(palette)
 
-    def update_item(self):
+    def updateItem(self):
         name = self.name.text()
         if name != "":
-            # CategoriesModel().update(['name = %s', (self.old_name,)], (name,)).save()
-            self.load_date()
+            CategoriesModel().update(name=name).where("name", self.oldName).save()
+            self.loadData()
             self.name.setText("")
-            self.edit_off()
+            self.editOff()
 
     def test(self):
         model = CategoriesModel()
-        data = model.all()
+        data = model.between("id", 1, 5).get()
         print(data)
