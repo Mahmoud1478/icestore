@@ -137,7 +137,7 @@ class {name.capitalize()}(Table):
             name = str(file).split("\\")[-1].replace(".py", '')
             table = self.auto_load(name)
             table.up()
-            print(f"migrated  {str(name)} ")
+            print(f"migrated {str(name)} ")
 
     def un_migrate(self):
         files = glob.glob(f"{os.getcwd()}\\database\\migrations\\*.py")
@@ -145,7 +145,7 @@ class {name.capitalize()}(Table):
             name = str(file).split("\\")[-1].replace(".py", '')
             table = self.auto_load(name)
             table.down()
-            print(f"dropped  {str(name)} ")
+            print(f"dropped {str(name)} ")
 
     def migrate_fresh(self):
         self.un_migrate()

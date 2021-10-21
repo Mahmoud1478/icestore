@@ -27,7 +27,7 @@ class CategoriesController(QWidget):
         self.table.resizeEvent = self.table_ui
 
     def load_date(self):
-        categories = CategoriesModel().set_cursor_type("tuple").get_fields().get_all()
+        categories = CategoriesModel().set_cursor_type("tuple").select("name").orderBy("id").get()
         self.table.setRowCount(len(categories))
         for row, row_date in enumerate(categories):
             for column, data in enumerate(row_date):
@@ -56,7 +56,7 @@ class CategoriesController(QWidget):
 
     def create_new(self):
         if self.name.text() != "":
-            CategoriesModel().create((self.name.text(),)).save()
+            # CategoriesModel().create((self.name.text(),)).save()
             self.load_date()
             self.name.setText("")
 
@@ -74,12 +74,12 @@ class CategoriesController(QWidget):
     def update_item(self):
         name = self.name.text()
         if name != "":
-            CategoriesModel().update(['name = %s', (self.old_name,)], (name,)).save()
+            # CategoriesModel().update(['name = %s', (self.old_name,)], (name,)).save()
             self.load_date()
             self.name.setText("")
             self.edit_off()
 
     def test(self):
         model = CategoriesModel()
-        data = model.get_fields().get_all()
+        data = model.all()
         print(data)

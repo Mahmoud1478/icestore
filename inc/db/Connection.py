@@ -12,6 +12,8 @@ class Connection:
         try:
             self.__cursorType = configuration["DefaultCursor"]
             self.__cursor = None
+            self._statement = ""
+            self._values = []
             self.__db = MySQLdb.connect(
                 host=configuration["host"],
                 user=configuration["user"],
@@ -29,29 +31,50 @@ class Connection:
             msg.setStandardButtons(QMessageBox.Ok)
             msg.exec_()
 
-    def __set_cursor(self):
+    def __set_cursor(self) -> None:
         self.__cursor = self.__db.cursor(self.__chose_cursors())
 
-    def close(self):
+    def close(self) -> None:
         self.__db.close()
 
-    def get_all(self):
+    def get(self) -> tuple:
+        self._query(self._statement, tuple(self._values))
+        self._statement = ""
+        self._values = []
         return self.__cursor.fetchall()
 
-    def first(self):
+    def first(self) -> tuple:
+        self._query(self._statement, tuple(self._values))
+        self._statement = ""
+        self._values = []
         return self.__cursor.fetchone()
 
-    def save(self):
+    def save(self) -> int:
+        self._query(self._statement, tuple(self._values))
+        self._statement = ""
+        self._values = []
         self.__db.commit()
+        return self.__cursor.rowcount
 
-    def _query(self, query, values=None):
+    def saveRows(self) -> int:
+        self._query_(self._statement, self._values)
+        self._statement = ""
+        self._values = []
+        self.__db.commit()
+        return self.__cursor.rowcount
+
+    def _query(self, query: str, values: tuple = None):
         self.__cursor.execute(str(query), values)
         return self
 
-    def last_one(self):
+    def _query_(self, query: str, values: list = None):
+        self.__cursor.executemany(str(query), values)
+        return self
+
+    def last_one(self) -> int:
         return self.__cursor.lastrowid
 
-    def __chose_cursors(self):
+    def __chose_cursors(self) -> object:
         if str(self.__cursorType).lower() == "dict":
             return MySQLdb.cursors.DictCursor
         elif str(self.__cursorType).lower() == "tuple":
