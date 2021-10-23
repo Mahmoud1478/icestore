@@ -1,0 +1,2 @@
+class AutoLoader:
+    pass

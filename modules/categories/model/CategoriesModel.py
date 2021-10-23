@@ -1,8 +1,6 @@
 from inc.db.BaseModel import BaseModel
 
 
-class CategoriesModel(BaseModel):
+class Categories(BaseModel):
     def __init__(self):
-        super(CategoriesModel, self).__init__()
-        self._table_name = 'categories'
-        self._fields = 'name',
+        super(Categories, self).__init__()

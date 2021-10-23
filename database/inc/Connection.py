@@ -33,7 +33,7 @@ class Connection:
 
     def _query(self, query, values=None):
         self.__cursor.execute(str(query), values)
-        return self
+        return self.__cursor.rowcount
 
     def last_one(self):
         return self.__cursor.lastrowid

@@ -1,10 +1,15 @@
 import MySQLdb
+from MySQLdb.cursors import Cursor, DictCursor
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon
 import json
 
 with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
     configuration = json.load(AppConfiguration)["database"]
+cursesMapper = {
+    "dict": DictCursor,
+    "tuple": Cursor
+}
 
 
 class Connection:
@@ -32,7 +37,11 @@ class Connection:
             msg.exec_()
 
     def __set_cursor(self) -> None:
-        self.__cursor = self.__db.cursor(self.__chose_cursors())
+        try:
+            self.__cursor = self.__db.cursor(cursesMapper[self.__cursorType])
+        except Exception as err:
+            print("cursor type not supported", err)
+            self.__cursor = self.__db.cursor(Cursor)
 
     def close(self) -> None:
         self.__db.close()
@@ -43,10 +52,12 @@ class Connection:
         self._values = []
         return self.__cursor.fetchall()
 
-    def first(self) -> tuple:
+    def first(self):
         self._query(self._statement, tuple(self._values))
         self._statement = ""
         self._values = []
+        '''for key, value in self.__cursor.fetchone().items():
+            self.__setattr__(key, value)'''
         return self.__cursor.fetchone()
 
     def save(self) -> int:
@@ -63,11 +74,11 @@ class Connection:
         self.__db.commit()
         return self.__cursor.rowcount
 
-    def _query(self, query: str, values: tuple = None) -> self:
+    def _query(self, query: str, values: tuple = None):
         self.__cursor.execute(str(query), values)
         return self
 
-    def _query_(self, query: str, values: list = None) -> self:
+    def _query_(self, query: str, values: list = None):
         self.__cursor.executemany(str(query), values)
         return self
 
@@ -76,13 +87,13 @@ class Connection:
 
     def __chose_cursors(self) -> object:
         if str(self.__cursorType).lower() == "dict":
-            return MySQLdb.cursors.DictCursor
+            return DictCursor
         elif str(self.__cursorType).lower() == "tuple":
-            return MySQLdb.cursors.Cursor
+            return Cursor
         else:
-            return MySQLdb.cursors.Cursor
+            return Cursor
 
-    def set_cursor_type(self, cursors_type: str) -> self:
+    def set_cursor_type(self, cursors_type: str):
         self.__cursorType = str(cursors_type)
         self.__set_cursor()
         return self

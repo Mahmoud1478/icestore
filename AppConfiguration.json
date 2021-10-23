@@ -4,6 +4,7 @@
     "MyAppPublisher": "ElmlaHSoft",
     "MyAppURL": "",
     "MyAppIcon": "iceStore.ico",
+    "PyQtVersion": 5,
 
     "database":{
         "host":"localhost",
@@ -13,10 +14,10 @@
         "DefaultCursor": "dict"
     },
 
-    "exe": {
-        "executable": "index.py",
-        "outputFolder": "exe",
-        "addDate": [
+    "Exe": {
+        "Executable": "index.py",
+        "OutputFolder": "exe",
+        "AddData": [
             "assets",
             "globals",
             "inc/db",
@@ -26,7 +27,7 @@
         ]
     },
 
-    "setupWizard": {
+    "SetupWizard": {
         "MyAppExeName":"exe/IceStore/IceStore.exe",
         "runAsAdministrator":false,
         "OutputDir": "build",
@@ -35,5 +36,17 @@
         "files": [
             "exe/IceStore"
         ]
+    },
+
+    "Paths": {
+        "_comment_": "changeable [Modules,.uiUserInterface] ",
+        "Modules": "modules",
+        ".uiUserInterface": "ui",
+        "UiFile": "{UiPath}\\{ModuleName}\\{ModuleName}.ui",
+        ".pyUserInterface": "{ModulesPath}\\ui\\{ModuleName}.py",
+        "Models": "{ModulesPath}\\{ModuleName}\\models\\{ModuleName}Model.py",
+        "MainControllers": "{ModulesPath}\\{ModuleName}\\{ModuleName}controller.py",
+        "Controllers": "{ModulesPath}\\{ModuleName}\\controllers\\{ModuleName}controller.py",
+        "migration": "database\\migrations"
     }
 }

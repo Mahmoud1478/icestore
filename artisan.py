@@ -3,14 +3,43 @@ import os
 import glob
 import importlib
 from datetime import datetime
+import json
 
 args = sys.argv[1:]
+with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
+    configuration = json.load(AppConfiguration)["Paths"]
 
 
 class Artisan:
-    def __init__(self):
+    def __init__(self, sysArgs=None):
         # print(args)
-        if args[0].split(":")[0] == "make":
+        self.args = sysArgs
+        self.options = self.args[1:]
+        self.FUNCTIONS_MAPPER = {
+            "make": {
+                "module": self.create_module,
+                "model": self.create_model,
+                "controller": self.create_controller,
+                "migration": self.migrations,
+            },
+            "convert": {
+                "qrc": self.convert_qrc,
+                "ui": self.convert_ui,
+            },
+            "migrate": {
+                "start": self.migrate,
+                "fresh": self.migrate_fresh
+            },
+            "build": self.build,
+            "exe": self.exe,
+
+        }
+        if ":" in self.args[0]:
+            command, command_type = self.args[0].split(":")
+            self.FUNCTIONS_MAPPER[command.lower()][command_type.lower()](self.options)
+        else:
+            self.FUNCTIONS_MAPPER[self.args[0].lower()](self.options)
+        '''if args[0].split(":")[0] == "make":
             if args[0].split(":")[1] == "module":
                 self.create_module(args[1])
             elif args[0].split(":")[1] == "model":
@@ -28,7 +57,7 @@ class Artisan:
             self.migrate()
         elif args[0].split(":")[0] == "migrate":
             if args[0].split(":")[1] == "fresh":
-                self.migrate_fresh()
+                self.migrate_fresh()'''
 
     @staticmethod
     def model(path, name):
@@ -36,11 +65,9 @@ class Artisan:
             file.write(f'''from inc.db.BaseModel import BaseModel
             
 
-class {name.capitalize()}Model(BaseModel):
+class {name.capitalize()}(BaseModel):
     def __init__(self):
-        super({name.capitalize()}Model, self).__init__()
-        self._table_name = '{name.lower()}'
-        self._fields = '', ''')
+        super({name.capitalize()}, self).__init__() ''')
 
     @staticmethod
     def controller(path, name):
@@ -83,16 +110,18 @@ class {name.capitalize()}Controller(QWidget):
 class {name.capitalize()}(Table):
 
     def up(self):
-        self._create(
+        return self._create(
             self.column(name="id", type="int", primary=True, auto_increment=True, unsigned=True),
         )
 
     def down(self):
-        self._drop() ''')
+        return self._drop() ''')
+            return True, f"{str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))}_{name.lower()}.py"
 
-    def create_module(self, name):
-        module_path = os.path.join(os.getcwd(), f"modules\\{name}")
-        module_path_ui = os.path.join(os.getcwd(), f"ui\\{name}")
+    def create_module(self, options):
+        name = options[0]
+        module_path = os.path.join(os.getcwd(), f"{configuration['Modules']}\\{name}")
+        module_path_ui = os.path.join(os.getcwd(), f"{configuration['.uiUserInterface']}\\{name}")
         if not os.path.isdir(module_path):
             os.mkdir(module_path)
             os.mkdir(os.path.join(module_path, "ui"))
@@ -100,20 +129,24 @@ class {name.capitalize()}(Table):
             os.mkdir(os.path.join(module_path, "controllers"))
             self.model(os.path.join(module_path, "model"), name)
             self.controller(module_path, name)
-            with open(os.path.join(module_path, f"ui\\{name.lower()}.py"), "w", encoding="utf8"):
+            with open(
+                    f"{configuration['.pyUserInterface'].format(ModulesPath=module_path, ModuleName=name.lower())}",
+                    "w", encoding="utf8"):
                 pass
             if not os.path.isdir(module_path_ui):
                 os.mkdir(module_path_ui)
-                with open(os.path.join(os.getcwd(), f"ui\\{name}\\{name}.ui"), "w", encoding="utf8"):
+                with open(f"{module_path_ui}\\{name}.ui", "w", encoding="utf8"):
                     pass
         else:
-            print("the module is already exists ")
+            print("the module is already exists")
 
-    def convert_qrc(self):
-        pass
+    def convert_qrc(self, *args):
+        print("convert_qrc")
+        return self
 
-    def convert_ui(self):
-        pass
+    def convert_ui(self, *args):
+        print("convert_ui")
+        return self
 
     def create_model(self, path, name):
         self.model(os.path.join(os.getcwd(), f"modules\\{path}\\model"), name)
@@ -121,8 +154,10 @@ class {name.capitalize()}(Table):
     def create_controller(self, path, name):
         self.sec_controller(os.path.join(os.getcwd(), f"modules\\{path}\\controllers"), name, path)
 
-    def migrations(self, name):
-        self.migration(os.path.join(os.getcwd(), "database\\migrations"), name)
+    def migrations(self, options: list):
+        status = self.migration(os.path.join(os.getcwd(), configuration['migration']), options[0])
+        if status[0]:
+            print(f"created {status[1]}")
 
     @staticmethod
     def auto_load(name):
@@ -131,8 +166,8 @@ class {name.capitalize()}(Table):
         class_instance = getattr(module, module_name.split("_")[-1].capitalize())
         return class_instance()
 
-    def migrate(self):
-        files = glob.glob(f"{os.getcwd()}\\database\\migrations\\*.py")
+    def migrate(self, *args):
+        files = glob.glob(f"{os.getcwd()}\\{configuration['migration']}\\*.py")
         for file in files:
             name = str(file).split("\\")[-1].replace(".py", '')
             table = self.auto_load(name)
@@ -140,17 +175,26 @@ class {name.capitalize()}(Table):
             print(f"migrated {str(name)} ")
 
     def un_migrate(self):
-        files = glob.glob(f"{os.getcwd()}\\database\\migrations\\*.py")
+        files = glob.glob(f"{os.getcwd()}\\{configuration['migration']}\\*.py")
         for file in files:
             name = str(file).split("\\")[-1].replace(".py", '')
             table = self.auto_load(name)
             table.down()
             print(f"dropped {str(name)} ")
 
-    def migrate_fresh(self):
+    def migrate_fresh(self, *args):
         self.un_migrate()
         self.migrate()
 
+    def test(self, op: list = None):
+        print(op)
+
+    def build(self, *args):
+        pass
+
+    def exe(self, *args):
+        pass
+
 
 if __name__ == '__main__':
-    Artisan()
+    Artisan(sys.argv[1:])

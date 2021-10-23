@@ -4,7 +4,7 @@ from database.inc.table import Table
 class Users(Table):
 
     def up(self):
-        self._create(
+        return self._create(
             self.column(name="id", type="int", primary=True, auto_increment=True, unsigned=True),
             self.column(name="name", type="str", size=45, unique=True),
             self.column(name="password", type="str", size=45),
@@ -12,4 +12,4 @@ class Users(Table):
         )
 
     def down(self):
-        self._drop()
+        return self._drop()

@@ -29,6 +29,7 @@ class CategoriesController(QWidget):
     def loadData(self):
         categories = CategoriesModel().set_cursor_type("tuple").select("name").orderBy("id").get()
         self.table.setRowCount(len(categories))
+        print(len(categories))
         for row, row_date in enumerate(categories):
             for column, data in enumerate(row_date):
                 item = QTableWidgetItem(str(data))
@@ -81,5 +82,5 @@ class CategoriesController(QWidget):
 
     def test(self):
         model = CategoriesModel()
-        data = model.between("id", 1, 5).get()
+        data = model.where("name", "test0").first()
         print(data)
