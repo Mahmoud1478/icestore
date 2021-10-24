@@ -1,4 +1,4 @@
-from modules.home.model.HomeModel import HomeModel
+from modules.home.models.homeModel import Home
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import *

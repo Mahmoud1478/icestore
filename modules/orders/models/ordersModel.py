@@ -1,4 +1,5 @@
 from inc.db.BaseModel import BaseModel
+import importlib
 
 
 class Orders(BaseModel):
@@ -6,4 +7,4 @@ class Orders(BaseModel):
         super(Orders, self).__init__()
 
     def items(self):
-        return self.hasMany("order_items", "order_id")
+        return self._hasMany("ordersitems", "id", "order_id", "orders")

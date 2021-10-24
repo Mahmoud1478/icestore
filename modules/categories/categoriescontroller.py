@@ -1,14 +1,14 @@
+from modules.categories.models.categoriesModel import Categories
+from globals import AutoLoader
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.uic import loadUi
-from modules.categories.model.CategoriesModel import CategoriesModel
 
 
 class CategoriesController(QWidget):
     def __init__(self):
         super(CategoriesController, self).__init__()
-        loadUi("ui/categories/categories.ui", self)
+        AutoLoader.uiFile("categories", self)
         self.oldName = None
         self.loadData()
         self.editOff()
@@ -27,9 +27,8 @@ class CategoriesController(QWidget):
         self.table.resizeEvent = self.tableUi
 
     def loadData(self):
-        categories = CategoriesModel().set_cursor_type("tuple").select("name").orderBy("id").get()
+        categories = Categories().set_cursor_type("tuple").select("name").orderBy("id").get()
         self.table.setRowCount(len(categories))
-        print(len(categories))
         for row, row_date in enumerate(categories):
             for column, data in enumerate(row_date):
                 item = QTableWidgetItem(str(data))
@@ -57,7 +56,7 @@ class CategoriesController(QWidget):
 
     def createNew(self):
         if self.name.text() != "":
-            CategoriesModel().create(name=self.name.text()).save()
+            Categories().create(name=self.name.text()).save()
             self.loadData()
             self.name.setText("")
 
@@ -75,12 +74,10 @@ class CategoriesController(QWidget):
     def updateItem(self):
         name = self.name.text()
         if name != "":
-            CategoriesModel().update(name=name).where("name", self.oldName).save()
+            Categories().update(name=name).where("name", self.oldName).save()
             self.loadData()
             self.name.setText("")
             self.editOff()
 
     def test(self):
-        model = CategoriesModel()
-        data = model.where("name", "test0").first()
-        print(data)
+        pass

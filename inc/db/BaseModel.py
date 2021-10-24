@@ -1,5 +1,7 @@
 from inc.db.Connection import Connection
 
+from globals import AutoLoader
+
 SELECT_STATEMENT = "SELECT {columns} FROM {table}"
 DELETE_STATEMENT = "DELETE  FROM {table}"
 WHERE_STATEMENT = " WHERE {condition} {operator} %s"
@@ -10,23 +12,26 @@ UPDATE_STATEMENT = "update {table} set {columns}"
 ORDERBY_STATEMENT = " ORDER BY {column} {how}"
 GROUPBY_STATEMENT = " GROUP BY {column} "
 HASMaNY_STATEMENT = " join {foreign_table} on {local_table}.id = {on}"
-BLONGSTO_STATEMENT = " join {local_table} on {foreign_table}.id = {on}"
+BLONGSTO_STATEMENT = " join {foreign_table} on {local_key} = {foreign_key}"
+JOIN_STATEMENT = " JOIN {foreign_table}"
+ON_JOIN_STATEMENT = " ON {local_key} = {foreign_key}"
 
 
 class BaseModel(Connection):
+
     def __init__(self):
         super(BaseModel, self).__init__()
-        self.table_name = str(self.__class__.__name__).lower()
-        self._statement = SELECT_STATEMENT.format(table=self.table_name, columns="*")
+        self.__table_name = str(self.__class__.__name__).lower()
+        self._statement = SELECT_STATEMENT.format(table=self.__table_name, columns="*")
 
     def all(self):
         """get all data of the table  contains all fields"""
-        self._statement = SELECT_STATEMENT.format(table=self.table_name, columns="*")
+        self._statement = SELECT_STATEMENT.format(table=self.__table_name, columns="*")
         return self.get()
 
     def select(self, *args):
         """takes args and get  data of the table with your own fields"""
-        self._statement = SELECT_STATEMENT.format(table=self.table_name, columns=",".join(args))
+        self._statement = SELECT_STATEMENT.format(table=self.__table_name, columns=",".join(args))
         return self
 
     def where(self, condition: str, value, operator: str = "=", ):
@@ -53,7 +58,7 @@ class BaseModel(Connection):
 
     def delete(self):
         """add delete to query"""
-        self._statement += DELETE_STATEMENT.format(table=self.table_name)
+        self._statement += DELETE_STATEMENT.format(table=self.__table_name)
         return self
 
     def orderBy(self, column: str, how: str = "ASC"):
@@ -71,7 +76,7 @@ class BaseModel(Connection):
             else:
                 placeholder += "%s,"
             self._values.append(value)
-        self._statement = INSERT_STATEMENT.format(table=self.table_name, columns=",".join(kwargs.keys()),
+        self._statement = INSERT_STATEMENT.format(table=self.__table_name, columns=",".join(kwargs.keys()),
                                                   placeholder=placeholder)
         return self
 
@@ -86,7 +91,7 @@ class BaseModel(Connection):
                 columns_ += column
             else:
                 placeholder += "%s,"
-        self._statement = INSERT_STATEMENT.format(table=self.table_name, columns=columns_, placeholder=placeholder)
+        self._statement = INSERT_STATEMENT.format(table=self.__table_name, columns=columns_, placeholder=placeholder)
         for value in values:
             self._values.append(value)
         return self
@@ -101,7 +106,7 @@ class BaseModel(Connection):
             else:
                 columns += f"{key}=%s,"
             self._values.append(value)
-        self._statement = UPDATE_STATEMENT.format(table=self.table_name, columns=columns)
+        self._statement = UPDATE_STATEMENT.format(table=self.__table_name, columns=columns)
         return self
 
     def sqlRow(self, sql: str):
@@ -109,14 +114,56 @@ class BaseModel(Connection):
         self._statement += sql
         return self
 
-    def hasMany(self, table: str, on: str):
-        self._statement += HASMaNY_STATEMENT.format(foreign_table=table, local_table=self.table_name, on=on)
-        return self
+    def _hasMany(self, className: str, local_key: str, foreign_key: str, module_name: str = None):
+        try:
+            model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+            return model.where(foreign_key, getattr(self, local_key)).get()
+        except AttributeError:
+            raise Exception(" Parent does not exist")
 
-    def belongsTo(self, table: str, on: str):
-        self._statement += BLONGSTO_STATEMENT.format(foreign_table=table, local_table=self.table_name, on=on)
-        return self
+    def _hasOne(self, className: str, local_key: str, foreign_key: str, module_name: str = None):
+        try:
+            model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+            return model.where(foreign_key, getattr(self, local_key)).lmit(1).first()
+        except AttributeError:
+            raise Exception(" Parent does not exist")
+
+    def _belongsTo(self, className: str, local_key: str, foreign_key: str, module_name: str = None):
+        try:
+            model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+            return model.where(local_key, getattr(self, foreign_key)).limit(1).first()
+        except AttributeError:
+            raise Exception(" Parent does not exist")
+
+    def _belongsToMany(self, modelName: str, intermediateTable: str, foreign_key: str, local_key: str,
+                       module_name: str = None):
+        try:
+            model = AutoLoader.model(modelName) if module_name is None else AutoLoader.subModel(module_name, modelName)
+
+            return model.select(f"{modelName}.*").join(intermediateTable).on(
+                f"{intermediateTable}.{foreign_key}",
+                f"{modelName}.id").join(
+                self.__table_name).on(f"{intermediateTable}.{local_key}", f"{self.__table_name}.id").where(
+                f"{intermediateTable}.{local_key}", getattr(self, "id")).get()
+        except AttributeError:
+            raise Exception(" Parent does not exist")
 
     def groupBy(self, column: str, how: str = "DESC"):
         self._statement += GROUPBY_STATEMENT.format(column=column)
+        return self
+
+    def limit(self, count: int):
+        self._statement += f" limit {count}"
+        return self
+
+    def _setTable(self, table: str):
+        self.__table_name = table
+        self._statement = SELECT_STATEMENT.format(table=self.__table_name, columns="*")
+
+    def join(self, table: str):
+        self._statement += JOIN_STATEMENT.format(foreign_table=table)
+        return self
+
+    def on(self, localKey: str, foreignKey: str):
+        self._statement += ON_JOIN_STATEMENT.format(local_key=localKey, foreign_key=foreignKey)
         return self

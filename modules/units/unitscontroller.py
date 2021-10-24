@@ -1,4 +1,4 @@
-from modules.units.model.UnitsModel import UnitsModel
+from modules.units.models.unitsModel import Units
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import *
@@ -26,7 +26,7 @@ class UnitsController(QWidget):
         self.table.resizeEvent = self.table_ui
 
     def load_date(self):
-        categories = UnitsModel().get_fields().get_all()
+        categories = Units().select("name").get()
         self.table.setRowCount(len(categories))
         for row, row_date in enumerate(categories):
             for column, data in enumerate(row_date):
@@ -55,7 +55,7 @@ class UnitsController(QWidget):
 
     def create_new(self):
         if self.name.text() != "":
-            UnitsModel().create((self.name.text(),)).save()
+            Units().create(name=self.name.text()).save()
             self.load_date()
             self.name.setText("")
 
@@ -73,7 +73,7 @@ class UnitsController(QWidget):
     def update_item(self):
         name = self.name.text()
         if name != "":
-            UnitsModel().update(['name = %s', (self.old_name,)], (name,)).save()
+            Units().update(name=name).where("name", self.old_name).save()
             self.load_date()
             self.name.setText("")
             self.edit_off()

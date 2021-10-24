@@ -1,18 +1,21 @@
+from globals import AutoLoader
+from datetime import datetime
+from vendor import App
+import json
+import time
+import glob
 import sys
 import os
-import glob
-import importlib
-from datetime import datetime
-import json
 
-args = sys.argv[1:]
+
 with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
-    configuration = json.load(AppConfiguration)["Paths"]
+    file = json.load(AppConfiguration)
+    configuration = file["Paths"]
+    PyQtVersion = file["PyQtVersion"]
 
 
 class Artisan:
     def __init__(self, sysArgs=None):
-        # print(args)
         self.args = sysArgs
         self.options = self.args[1:]
         self.FUNCTIONS_MAPPER = {
@@ -39,44 +42,27 @@ class Artisan:
             self.FUNCTIONS_MAPPER[command.lower()][command_type.lower()](self.options)
         else:
             self.FUNCTIONS_MAPPER[self.args[0].lower()](self.options)
-        '''if args[0].split(":")[0] == "make":
-            if args[0].split(":")[1] == "module":
-                self.create_module(args[1])
-            elif args[0].split(":")[1] == "model":
-                model = args[1].split(":")
-                self.create_model(model[1], model[0])
-            elif args[0].split(":")[1] == "controller":
-                controller = args[1].split(":")
-                self.create_controller(controller[1], controller[0])
-            elif args[0].split(":")[1] == "migration":
-                self.migrations(args[1])
-
-        elif args[0].split(":")[0] == "convert":
-            print("convert")
-        elif args[0] == "migrate":
-            self.migrate()
-        elif args[0].split(":")[0] == "migrate":
-            if args[0].split(":")[1] == "fresh":
-                self.migrate_fresh()'''
 
     @staticmethod
     def model(path, name):
-        with open(f"{path}/{name.capitalize()}Model.py", "w", encoding="utf8") as file:
-            file.write(f'''from inc.db.BaseModel import BaseModel
+        model_path = f"{path}/{name.lower()}Model.py"
+        with open(model_path, "w", encoding="utf8") as model:
+            model.write(f'''from inc.db.BaseModel import BaseModel
             
 
 class {name.capitalize()}(BaseModel):
     def __init__(self):
         super({name.capitalize()}, self).__init__() ''')
+        return model_path
 
     @staticmethod
     def controller(path, name):
-        with open(f"{path}/{name.lower()}controller.py", "w", encoding="utf8") as file:
-            file.write(f'''from modules.{name.lower()}.model.{name.capitalize()}Model import {name.capitalize()}Model
-from PyQt5.QtWidgets import *
-from PyQt5.uic import loadUi
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+        with open(f"{path}/{name.lower()}Controller.py", "w", encoding="utf8") as controller:
+            controller.write(f'''from modules.{name.lower()}.model.{name.lower()}Model import {name.capitalize()}Model
+from PyQt{PyQtVersion}.QtWidgets import *
+from PyQt{PyQtVersion}.uic import loadUi
+from PyQt{PyQtVersion}.QtCore import *
+from PyQt{PyQtVersion}.QtGui import *
 
 
 class {name.capitalize()}Controller(QWidget):
@@ -86,28 +72,29 @@ class {name.capitalize()}Controller(QWidget):
 
     @staticmethod
     def sec_controller(path, name, module_name):
-        with open(f"{path}/{name.lower()}controller.py", "w", encoding="utf8") as file:
-            file.write(
-                f'''from modules.{module_name.lower()}.model.{module_name.capitalize()}Model import {module_name.capitalize()}Model
-from PyQt5.QtWidgets import *
-from PyQt5.uic import loadUi
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
+        with open(f"{path}/{name.lower()}Controller.py", "w", encoding="utf8") as controller:
+            controller.write(
+                f'''from modules.{module_name.lower()}.model.{module_name.lower()}Model import {module_name.capitalize()}Model 
+from PyQt{PyQtVersion}.QtWidgets import *
+from PyQt{PyQtVersion}.uic import loadUi
+from PyQt{PyQtVersion}.QtCore import *
+from PyQt{PyQtVersion}.QtGui import *
 
 
 class {name.capitalize()}Controller(QWidget):
     def __init__(self):
         super({name.capitalize()}Controller, self).__init__()
         # loadUi("ui/{module_name.lower()}/{name.lower()}.ui", self)''')
+        return f'''{path}/{name.lower()}Controller.py'''
 
     @staticmethod
     def migration(path, name):
-        with open(f"{path}\\{str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))}_{name.lower()}.py", "w",
-                  encoding="utf8") as file:
-            file.write(f'''from database.inc.table import Table
+        with open(f"{path}\\{str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))}_create_table_{name.lower()}.py", "w",
+                  encoding="utf8") as model:
+            model.write(f'''from database.inc.table import Table
             
             
-class {name.capitalize()}(Table):
+class {name.capitalize() if "_" not in name else name}(Table):
 
     def up(self):
         return self._create(
@@ -116,18 +103,18 @@ class {name.capitalize()}(Table):
 
     def down(self):
         return self._drop() ''')
-            return True, f"{str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))}_{name.lower()}.py"
+            return f"{str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))}_create_table_{name.lower()}.py"
 
     def create_module(self, options):
         name = options[0]
-        module_path = os.path.join(os.getcwd(), f"{configuration['Modules']}\\{name}")
-        module_path_ui = os.path.join(os.getcwd(), f"{configuration['.uiUserInterface']}\\{name}")
+        module_path = f"{configuration['Modules']}/{name}"
+        module_path_ui = f"{configuration['.uiUserInterface']}/{name}"
         if not os.path.isdir(module_path):
             os.mkdir(module_path)
-            os.mkdir(os.path.join(module_path, "ui"))
-            os.mkdir(os.path.join(module_path, "model"))
-            os.mkdir(os.path.join(module_path, "controllers"))
-            self.model(os.path.join(module_path, "model"), name)
+            os.mkdir(f"{module_path}/ui")
+            os.mkdir(f"{module_path}/models")
+            os.mkdir(f"{module_path}/controllers")
+            self.model(f"{module_path}/models", name)
             self.controller(module_path, name)
             with open(
                     f"{configuration['.pyUserInterface'].format(ModulesPath=module_path, ModuleName=name.lower())}",
@@ -135,8 +122,7 @@ class {name.capitalize()}(Table):
                 pass
             if not os.path.isdir(module_path_ui):
                 os.mkdir(module_path_ui)
-                with open(f"{module_path_ui}\\{name}.ui", "w", encoding="utf8"):
-                    pass
+                App.generateUi(module_path_ui, name)
         else:
             print("the module is already exists")
 
@@ -148,39 +134,38 @@ class {name.capitalize()}(Table):
         print("convert_ui")
         return self
 
-    def create_model(self, path, name):
-        self.model(os.path.join(os.getcwd(), f"modules\\{path}\\model"), name)
+    def create_model(self, options):
+        name, path = options[0].split("@")
+        print(f'''created {self.model(f"{configuration['Modules']}/{path}/models", name)}''')
 
-    def create_controller(self, path, name):
-        self.sec_controller(os.path.join(os.getcwd(), f"modules\\{path}\\controllers"), name, path)
+    def create_controller(self, options):
+        name, path = options[0].split("@")
+        print(f'''created {self.sec_controller(f"{configuration['Modules']}/{path}/controllers", name, path)}''')
 
     def migrations(self, options: list):
-        status = self.migration(os.path.join(os.getcwd(), configuration['migration']), options[0])
-        if status[0]:
-            print(f"created {status[1]}")
+        print(f'''created {self.migration(f"{configuration['migrations']}", options[0])}''')
 
     @staticmethod
-    def auto_load(name):
-        module_name = name
-        module = importlib.import_module(f"database.migrations.{module_name}", ".")
-        class_instance = getattr(module, module_name.split("_")[-1].capitalize())
-        return class_instance()
-
-    def migrate(self, *args):
-        files = glob.glob(f"{os.getcwd()}\\{configuration['migration']}\\*.py")
-        for file in files:
-            name = str(file).split("\\")[-1].replace(".py", '')
-            table = self.auto_load(name)
+    def migrate(*args):
+        files = glob.glob(f"{configuration['migrations']}/*.py")
+        for item in files:
+            start = time.time()
+            name = str(item).split("\\")[-1].replace(".py", '')
+            table = AutoLoader.migration(item)
             table.up()
-            print(f"migrated {str(name)} ")
+            finish = time.time()
+            print(f'''migrated {name} toke {finish - start} s ''')
 
-    def un_migrate(self):
-        files = glob.glob(f"{os.getcwd()}\\{configuration['migration']}\\*.py")
-        for file in files:
-            name = str(file).split("\\")[-1].replace(".py", '')
-            table = self.auto_load(name)
+    @staticmethod
+    def un_migrate():
+        files = glob.glob(f"{configuration['migration']}/*.py")
+        for item in files:
+            start = time.time()
+            name = str(item).split("\\")[-1].replace(".py", '')
+            table = AutoLoader.migration(item)
             table.down()
-            print(f"dropped {str(name)} ")
+            finish = time.time()
+            print(f"dropped {str(name)}  toke {finish - start} s")
 
     def migrate_fresh(self, *args):
         self.un_migrate()

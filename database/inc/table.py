@@ -9,14 +9,14 @@ utf8mb4_0900_ai_ci DEFAULT ENCRYPTION='N' '''
 class Table(Connection):
     def __init__(self):
         super(Table, self).__init__()
-        self._name = self.__class__.__name__
+        self._name = self.__class__.__name__.lower()
 
     def _create(self, *args):
         return self._query(
-            CREATE_TABLE_STATEMENT.format(name=str(self._name).lower(), columns=",".join(args)))
+            CREATE_TABLE_STATEMENT.format(name=str(self._name), columns=",".join(args)))
 
     def _drop(self):
-        return self._query(DROP_TABLE_STATEMENT.format(name=self._name).lower())
+        return self._query(DROP_TABLE_STATEMENT.format(name=self._name))
 
     def create_database(self):
         self._query(CREATE_DATABASE_STATEMENT.format(name="test"))
@@ -103,3 +103,7 @@ class Table(Connection):
             return f''' ,FOREIGN KEY ({name}) REFERENCES {foreignkey["ref"]}({foreignkey["on"]}) 
             ON DELETE {foreignkey["onDelete"]} ON UPDATE {foreignkey["onUpdate"]} '''
         return ""
+
+    # def foreignKey(self, name: str):
+    #    texzt =  f''' ,FOREIGN KEY ({name}'''
+    #   return self

@@ -8,7 +8,7 @@ class Users(Table):
             self.column(name="id", type="int", primary=True, auto_increment=True, unsigned=True),
             self.column(name="name", type="str", size=45, unique=True),
             self.column(name="password", type="str", size=45),
-            self.column(name="permission", type="tinyint")
+            self.column(name="permission", type="tinyint"),
         )
 
     def down(self):

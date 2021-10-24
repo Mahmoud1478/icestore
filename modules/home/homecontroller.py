@@ -1,9 +1,10 @@
+from globals import SideMenuItem
+from globals import AutoLoader
 from PyQt5.QtWidgets import *
-from PyQt5.uic import loadUi
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from globals import SideMenuItem
 import ctypes
+
 import Resorces_rc
 
 
@@ -12,7 +13,8 @@ class HomeController(QMainWindow):
         super(HomeController, self).__init__()
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('ElmalaHSoFt.IceStore.1.0.0')
         QFontDatabase.addApplicationFont('assets/fonts/Cairo-Regular.ttf')
-        loadUi("ui/home/home.ui", self)
+        # loadUi("ui/home/home.ui", self)
+        AutoLoader.uiFile("home", self)
         self.available_space_menu = None
         self.user_menu_status = False
         self.main_menu_status = True
@@ -37,7 +39,8 @@ class HomeController(QMainWindow):
         self.user.clicked.connect(self.toggle_user)
 
     def menu_resize(self, event):
-        self.available_space_menu = self.scrollContents.height() - ((len(self.menus) * self.menu_height) + self.menu_height)
+        self.available_space_menu = self.scrollContents.height() - (
+                    (len(self.menus) * self.menu_height) + self.menu_height)
 
     def toggle_menu(self):
         if self.main_menu_status:
@@ -266,7 +269,7 @@ class HomeController(QMainWindow):
         shadow.setBlurRadius(blur)
         shadow.setXOffset(0)
         shadow.setYOffset(0)
-        shadow.setColor(QColor(170, 85, 255,))
+        shadow.setColor(QColor(170, 85, 255, ))
         '''  self.chart_5.setGraphicsEffect(self.shadow)
         self.chart_4.setGraphicsEffect(self.shadow)
         self.chart_3.setGraphicsEffect(self.shadow)

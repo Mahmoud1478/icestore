@@ -28,13 +28,14 @@ class Connection:
             self.__db.set_character_set("utf8mb4")
             self.__set_cursor()
         except Exception as Error:
-            msg = QMessageBox()
+            ''' msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setText(str(Error))
             msg.setWindowTitle("خطا")
             msg.setWindowIcon(QIcon("images/logo.png"))
             msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
+            msg.exec_()'''
+            print(Error)
 
     def __set_cursor(self) -> None:
         try:
@@ -56,9 +57,19 @@ class Connection:
         self._query(self._statement, tuple(self._values))
         self._statement = ""
         self._values = []
-        '''for key, value in self.__cursor.fetchone().items():
-            self.__setattr__(key, value)'''
         return self.__cursor.fetchone()
+
+    def findObject(self):
+        self._query(self._statement, tuple(self._values))
+        self._statement = ""
+        self._values = []
+        val = self.__cursor.fetchone()
+        if val:
+            for key, value in val.items():
+                self.__setattr__(key, value)
+            return self
+        else:
+            return None
 
     def save(self) -> int:
         self._query(self._statement, tuple(self._values))
