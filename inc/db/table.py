@@ -1,7 +1,7 @@
-from database.inc.Connection import Connection
+from inc.db.Connection import Connection
 
 CREATE_TABLE_STATEMENT = "CREATE TABLE IF NOT EXISTS {name} ({columns});"
-DROP_TABLE_STATEMENT = "DROP TABLE IF EXISTS {name}"
+DROP_TABLE_STATEMENT = "SET FOREIGN_KEY_CHECKS = 0; DROP TABLE IF EXISTS {name}; SET FOREIGN_KEY_CHECKS = 1;"
 CREATE_DATABASE_STATEMENT = '''CREATE DATABASE IF NOT EXISTS {name} DEFAULT CHARACTER SET utf8mb4 COLLATE 
 utf8mb4_0900_ai_ci DEFAULT ENCRYPTION='N' '''
 
@@ -47,7 +47,7 @@ class Table(Connection):
         elif type.lower() == "time":
             return
         elif type.lower() == "datetime":
-            return
+            return " DATETIME"
         elif type.lower() == "tinyint":
             return " TINYINT"
         elif type.lower() == "bigint":

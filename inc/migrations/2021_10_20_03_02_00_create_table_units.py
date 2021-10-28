@@ -1,4 +1,4 @@
-from database.inc.table import Table
+from inc.db.table import Table
             
             
 class Units(Table):

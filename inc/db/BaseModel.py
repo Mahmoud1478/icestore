@@ -1,5 +1,6 @@
-from inc.db.Connection import Connection
-
+# from inc.db.Connection import Connection
+from inc.db.PConnection import Connection
+from inspect import isclass
 from globals import AutoLoader
 
 SELECT_STATEMENT = "SELECT {columns} FROM {table}"
@@ -21,8 +22,8 @@ class BaseModel(Connection):
 
     def __init__(self):
         super(BaseModel, self).__init__()
-        self.__table_name = str(self.__class__.__name__).lower()
-        self._statement = SELECT_STATEMENT.format(table=self.__table_name, columns="*")
+        self.__table_name: str = str(self.__class__.__name__).lower()
+        self._statement: str = SELECT_STATEMENT.format(table=self.__table_name, columns="*")
 
     def all(self):
         """get all data of the table  contains all fields"""
@@ -41,6 +42,15 @@ class BaseModel(Connection):
         else:
             self._statement += WHERE_STATEMENT.format(condition=condition, operator=operator)
         self._values.append(value)
+        return self
+
+    def whereID(self, ):
+        """add where to query takes condition:str, value:any and optional(operator:str)"""
+        if "WHERE" in self._statement:
+            self._statement += f" and {WHERE_STATEMENT.format(condition='id', operator='=')}"
+        else:
+            self._statement += WHERE_STATEMENT.format(condition="id", operator='=')
+        self._values.append(getattr(self, "id"))
         return self
 
     def orWhere(self, condition: str, value: str, operator: str = "="):
@@ -68,7 +78,7 @@ class BaseModel(Connection):
 
     def create(self, **kwargs):
         """"""
-        placeholder = ""
+        placeholder: str = ""
         last_key = list(kwargs)[-1]
         for key, value in kwargs.items():
             if key == last_key:
@@ -82,9 +92,9 @@ class BaseModel(Connection):
 
     def createMany(self, columns: list, values: list):
         """"""
-        placeholder = ""
-        columnsCount = len(columns)
-        columns_ = ""
+        placeholder: str = ""
+        columnsCount: int = len(columns)
+        columns_: str = ""
         for i, column in enumerate(columns):
             if i == columnsCount - 1:
                 placeholder += "%s"
@@ -98,57 +108,52 @@ class BaseModel(Connection):
 
     def update(self, **kwargs):
         """"""
-        last_key = list(kwargs)[-1]
-        columns = ""
+        last_key: str = list(kwargs)[-1]
+        columns: str = ""
         for key, value in kwargs.items():
             if key == last_key:
-                columns += f"{key}=%s"
+                columns += f"{key} = %s"
             else:
-                columns += f"{key}=%s,"
+                columns += f"{key} = %s,"
             self._values.append(value)
         self._statement = UPDATE_STATEMENT.format(table=self.__table_name, columns=columns)
         return self
 
-    def sqlRow(self, sql: str):
+    def sqlRaw(self, sql: str):
         """:parameter sql:str add row sql to query"""
-        self._statement += sql
+        self._statement = sql
         return self
 
-    def _hasMany(self, className: str, local_key: str, foreign_key: str, module_name: str = None):
-        try:
-            model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
-            return model.where(foreign_key, getattr(self, local_key)).get()
-        except AttributeError:
-            raise Exception(" Parent does not exist")
+    def _hasMany(self, className: str, foreign_key: str, local_key: str, module_name: str = None):
+        model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+        return model.where(foreign_key, getattr(self, local_key)).get()
 
-    def _hasOne(self, className: str, local_key: str, foreign_key: str, module_name: str = None):
-        try:
-            model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
-            return model.where(foreign_key, getattr(self, local_key)).lmit(1).first()
-        except AttributeError:
-            raise Exception(" Parent does not exist")
+    def _hasOne(self, className: str, foreign_key: str, local_key: str, module_name: str = None):
+        model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+        return model.where(foreign_key, getattr(self, local_key)).limit(1).first()
 
-    def _belongsTo(self, className: str, local_key: str, foreign_key: str, module_name: str = None):
-        try:
-            model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
-            return model.where(local_key, getattr(self, foreign_key)).limit(1).first()
-        except AttributeError:
-            raise Exception(" Parent does not exist")
+    def _hasOneObject(self, className: str, foreign_key: str, local_key: str, module_name: str = None):
+        model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+        return model.where(foreign_key, getattr(self, local_key)).limit(1).findObject()
+
+    def _belongsTo(self, className: str, foreign_key: str, local_key: str, module_name: str = None):
+        model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+        return model.where(local_key, getattr(self, foreign_key)).limit(1).first()
+
+    def _belongsToObject(self, className: str, foreign_key: str, local_key: str, module_name: str = None):
+        model = AutoLoader.model(className) if module_name is None else AutoLoader.subModel(module_name, className)
+        return model.where(local_key, getattr(self, foreign_key)).limit(1).findObject()
 
     def _belongsToMany(self, modelName: str, intermediateTable: str, foreign_key: str, local_key: str,
                        module_name: str = None):
-        try:
-            model = AutoLoader.model(modelName) if module_name is None else AutoLoader.subModel(module_name, modelName)
+        model = AutoLoader.model(modelName) if module_name is None else AutoLoader.subModel(module_name, modelName)
+        return model.select(f"{modelName}.*").join(intermediateTable).on(
+            f"{intermediateTable}.{foreign_key}",
+            f"{modelName}.id").join(
+            self.__table_name).on(f"{intermediateTable}.{local_key}", f"{self.__table_name}.id").where(
+            f"{intermediateTable}.{local_key}", getattr(self, "id")).get()
 
-            return model.select(f"{modelName}.*").join(intermediateTable).on(
-                f"{intermediateTable}.{foreign_key}",
-                f"{modelName}.id").join(
-                self.__table_name).on(f"{intermediateTable}.{local_key}", f"{self.__table_name}.id").where(
-                f"{intermediateTable}.{local_key}", getattr(self, "id")).get()
-        except AttributeError:
-            raise Exception(" Parent does not exist")
-
-    def groupBy(self, column: str, how: str = "DESC"):
+    def groupBy(self, column: str):
         self._statement += GROUPBY_STATEMENT.format(column=column)
         return self
 
@@ -166,4 +171,19 @@ class BaseModel(Connection):
 
     def on(self, localKey: str, foreignKey: str):
         self._statement += ON_JOIN_STATEMENT.format(local_key=localKey, foreign_key=foreignKey)
+        return self
+
+    def __filterAttr(self) -> dict:
+        column = {}
+        for key, value in self.__dict__.items():
+            if not isclass(value) and not callable(value) and key[0] != "_" and key != "id":
+                column[key] = value
+        return column
+
+    def saveObjectChanges(self):
+        column = self.__filterAttr()
+        if hasattr(self, "id"):
+            self.update(**column).saveObject()
+        else:
+            self.create(**column).save()
         return self

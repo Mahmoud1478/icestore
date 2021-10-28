@@ -4,7 +4,7 @@
     "MyAppPublisher": "ElmlaHSoft",
     "MyAppURL": "",
     "MyAppIcon": "iceStore.ico",
-    "PyQtVersion": 6,
+    "PyQtVersion": 5,
 
     "database":{
         "host":"localhost",
@@ -39,16 +39,8 @@
     },
 
     "Paths": {
-        "_comment_": "changeable [Modules,.uiUserInterface ,migrations] ",
-        "migrations": "database\\migrations",
-         ".uiUserInterface": "ui",
-        "Modules": "modules",
-        "UiFile": "{UiPath}/{ModuleName}/{ModuleName}.ui",
-        ".pyUserInterface": "{ModulesPath}/{ModuleName}/ui/{ModuleName}.py",
-        "Models": "{ModulesPath}.{ModuleName}.models.{ModuleName}Model",
-        "SubModels": "{ModulesPath}.{ModuleName}.models.{ClassName}Model",
-        "MainControllers": "{ModulesPath}.{ModuleName}.{ModuleName}controller.py",
-        "Controllers": "{ModulesPath}.{ModuleName}.controllers.{ModuleName}controller.py"
-
+        "migrations": "inc\\migrations",
+        "uiUserInterface": "ui",
+        "Modules": "modules"
     }
 }

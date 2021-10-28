@@ -1,4 +1,4 @@
-from modules.users.model.UsersModel import UsersModel
+from modules.users.models.usersModel import Users
 from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
 from PyQt5.QtCore import *

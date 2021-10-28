@@ -1,0 +1,9 @@
+{
+  "Modules": "modules",
+  "UiFile": "{UiPath}/{ModuleName}/{ModuleName}.ui",
+  "pyUserInterface": "{ModulesPath}/ui/{ModuleName}.py",
+  "Models": "{ModulesPath}.{ModuleName}.models.{ModuleName}Model",
+  "SubModels": "{ModulesPath}.{ModuleName}.models.{ClassName}Model",
+  "MainControllers": "{ModulesPath}.{ModuleName}.{ModuleName}Controller",
+  "Controllers": "{ModulesPath}.{ModuleName}.controllers.{ClassName}Controller"
+}

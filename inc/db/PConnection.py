@@ -60,7 +60,7 @@ class Connection:
 
     def findObject(self):
         self._query(self._statement, tuple(self._values))
-        self._statement = f"SELECT * FROM {self.__class__.__name__}"
+        self._statement = f"SELECT * FROM {self.__class__.__name__.lower}"
         self._values = []
         val = self.__cursor.fetchone()
         if val:
@@ -72,7 +72,7 @@ class Connection:
 
     def save(self):
         self._query(self._statement, tuple(self._values))
-        self._statement = f"SELECT * FROM {self.__class__.__name__}"
+        self._statement = f"SELECT * FROM {self.__class__.__name__.lower()}"
         self._values = []
         self.__db.commit()
         return self
@@ -98,12 +98,15 @@ class Connection:
         return self
 
     def _query(self, query: str, values: tuple = None):
+        start = time.time()
         self.__cursor.execute(str(query), values)
+        print(f"{self.__cursor._executed}  {time.time() - start : .4f}s")
         return self
 
     def _query_(self, query: str, values: list = None):
+        start = time.time()
         self.__cursor.executemany(str(query), values)
-        print(self.__cursor.statement)
+        print(f"{self.__cursor._executed}  {time.time() - start :.4f}s")
         return self
 
     def last_one(self) -> int:

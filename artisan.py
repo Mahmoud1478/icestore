@@ -1,5 +1,4 @@
 from globals import AutoLoader
-from datetime import datetime
 from vendor import App
 import json
 import time
@@ -8,22 +7,16 @@ import sys
 import os
 
 
-with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
-    file = json.load(AppConfiguration)
-    configuration = file["Paths"]
-    PyQtVersion = file["PyQtVersion"]
-
-
 class Artisan:
     def __init__(self, sysArgs=None):
         self.args = sysArgs
         self.options = self.args[1:]
         self.FUNCTIONS_MAPPER = {
             "make": {
-                "module": self.create_module,
-                "model": self.create_model,
-                "controller": self.create_controller,
-                "migration": self.migrations,
+                "module": self.module,
+                "model": self.model,
+                "controller": self.controller,
+                "migration": self.migration,
             },
             "convert": {
                 "qrc": self.convert_qrc,
@@ -44,135 +37,90 @@ class Artisan:
             self.FUNCTIONS_MAPPER[self.args[0].lower()](self.options)
 
     @staticmethod
-    def model(path, name):
-        model_path = f"{path}/{name.lower()}Model.py"
-        with open(model_path, "w", encoding="utf8") as model:
-            model.write(f'''from inc.db.BaseModel import BaseModel
-            
+    def module(options):
 
-class {name.capitalize()}(BaseModel):
-    def __init__(self):
-        super({name.capitalize()}, self).__init__() ''')
-        return model_path
+        with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
+            json_ = json.load(AppConfiguration)["Paths"]
+            uiPath = json_["uiUserInterface"]
+            modelsPath = json_["Modules"]
+            AppConfiguration.close()
 
-    @staticmethod
-    def controller(path, name):
-        with open(f"{path}/{name.lower()}Controller.py", "w", encoding="utf8") as controller:
-            controller.write(f'''from modules.{name.lower()}.model.{name.lower()}Model import {name.capitalize()}Model
-from PyQt{PyQtVersion}.QtWidgets import *
-from PyQt{PyQtVersion}.uic import loadUi
-from PyQt{PyQtVersion}.QtCore import *
-from PyQt{PyQtVersion}.QtGui import *
-
-
-class {name.capitalize()}Controller(QWidget):
-    def __init__(self):
-        super({name.capitalize()}Controller, self).__init__()
-        loadUi("ui/{name.lower()}/{name.lower()}.ui", self)''')
-
-    @staticmethod
-    def sec_controller(path, name, module_name):
-        with open(f"{path}/{name.lower()}Controller.py", "w", encoding="utf8") as controller:
-            controller.write(
-                f'''from modules.{module_name.lower()}.model.{module_name.lower()}Model import {module_name.capitalize()}Model 
-from PyQt{PyQtVersion}.QtWidgets import *
-from PyQt{PyQtVersion}.uic import loadUi
-from PyQt{PyQtVersion}.QtCore import *
-from PyQt{PyQtVersion}.QtGui import *
-
-
-class {name.capitalize()}Controller(QWidget):
-    def __init__(self):
-        super({name.capitalize()}Controller, self).__init__()
-        # loadUi("ui/{module_name.lower()}/{name.lower()}.ui", self)''')
-        return f'''{path}/{name.lower()}Controller.py'''
-
-    @staticmethod
-    def migration(path, name):
-        with open(f"{path}\\{str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))}_create_table_{name.lower()}.py", "w",
-                  encoding="utf8") as model:
-            model.write(f'''from database.inc.table import Table
-            
-            
-class {name.capitalize() if "_" not in name else name}(Table):
-
-    def up(self):
-        return self._create(
-            self.column(name="id", type="int", primary=True, auto_increment=True, unsigned=True),
-        )
-
-    def down(self):
-        return self._drop() ''')
-            return f"{str(datetime.now().strftime('%Y_%m_%d_%H_%M_%S'))}_create_table_{name.lower()}.py"
-
-    def create_module(self, options):
         name = options[0]
-        module_path = f"{configuration['Modules']}/{name}"
-        module_path_ui = f"{configuration['.uiUserInterface']}/{name}"
+        module_path = f"{modelsPath}/{name}"
+        module_path_ui = f"{uiPath}/{name}"
         if not os.path.isdir(module_path):
             os.mkdir(module_path)
             os.mkdir(f"{module_path}/ui")
             os.mkdir(f"{module_path}/models")
             os.mkdir(f"{module_path}/controllers")
-            self.model(f"{module_path}/models", name)
-            self.controller(module_path, name)
-            with open(
-                    f"{configuration['.pyUserInterface'].format(ModulesPath=module_path, ModuleName=name.lower())}",
-                    "w", encoding="utf8"):
+            print(f"created {App.generateMainModel(name)}")
+            print(f"created {App.generateMainController(name)}")
+            with open(f"{module_path}/ui/{name.lower()}", "w", encoding="utf8"):
                 pass
+            print(f"created {module_path}/ui/{name.lower()}")
             if not os.path.isdir(module_path_ui):
                 os.mkdir(module_path_ui)
-                App.generateUi(module_path_ui, name)
+                print(f"created {App.generateUi(name)}")
         else:
             print("the module is already exists")
 
-    def convert_qrc(self, *args):
+    @staticmethod
+    def convert_qrc(*args):
         print("convert_qrc")
-        return self
 
-    def convert_ui(self, *args):
+    @staticmethod
+    def convert_ui(*args):
         print("convert_ui")
-        return self
 
-    def create_model(self, options):
-        name, path = options[0].split("@")
-        print(f'''created {self.model(f"{configuration['Modules']}/{path}/models", name)}''')
+    @staticmethod
+    def controller(options):
+        name, module_name = options[0].split("@")
+        print(f'''created {App.generateController(name, module_name)}''')
 
-    def create_controller(self, options):
-        name, path = options[0].split("@")
-        print(f'''created {self.sec_controller(f"{configuration['Modules']}/{path}/controllers", name, path)}''')
-
-    def migrations(self, options: list):
-        print(f'''created {self.migration(f"{configuration['migrations']}", options[0])}''')
+    @staticmethod
+    def migration(options: list):
+        print(f'''created {App.generateMigration(options[0])}''')
 
     @staticmethod
     def migrate(*args):
-        files = glob.glob(f"{configuration['migrations']}/*.py")
+
+        with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
+            migrationsPath = json.load(AppConfiguration)["Paths"]["migrations"]
+            AppConfiguration.close()
+
+        files = glob.glob(f"{migrationsPath}/*.py")
         for item in files:
             start = time.time()
             name = str(item).split("\\")[-1].replace(".py", '')
             table = AutoLoader.migration(item)
             table.up()
             finish = time.time()
-            print(f'''migrated {name} toke {finish - start} s ''')
+            print(f'''migrated {name} toke {finish - start :.3f} s ''')
 
     @staticmethod
     def un_migrate():
-        files = glob.glob(f"{configuration['migration']}/*.py")
+
+        with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
+            migrationsPath = json.load(AppConfiguration)["Paths"]["migrations"]
+            AppConfiguration.close()
+
+        files = glob.glob(f"{migrationsPath}/*.py")
         for item in files:
             start = time.time()
             name = str(item).split("\\")[-1].replace(".py", '')
             table = AutoLoader.migration(item)
             table.down()
             finish = time.time()
-            print(f"dropped {str(name)}  toke {finish - start} s")
+            print(f"dropped {str(name)}  toke {finish - start :.3f} s")
+
+    @staticmethod
+    def model(options: str):
+        name, module_name = options[0].split("@")
+        print(f'''created {App.generateModel(name, module_name)}''')
 
     def migrate_fresh(self, *args):
         self.un_migrate()
         self.migrate()
-
-    def test(self, op: list = None):
-        print(op)
 
     def build(self, *args):
         pass
