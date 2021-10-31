@@ -14,7 +14,6 @@ class CategoriesController(QWidget):
         self.editOff()
         self.eventHandler()
         self.ui()
-        self.test()
 
     def ui(self):
         self.linePlaceholder()
@@ -24,7 +23,7 @@ class CategoriesController(QWidget):
         self.edit_btn.clicked.connect(self.updateItem)
         self.cancle_btn.clicked.connect(self.editOff)
         self.add_new.clicked.connect(self.createNew)
-        self.table.resizeEvent = self.tableUi
+        # self.table.resizeEvent = self.tableUi
 
     def loadData(self):
         categories = Categories().set_cursor_type("tuple").select("name").orderBy("id").get()
@@ -37,6 +36,7 @@ class CategoriesController(QWidget):
 
     def editOn(self):
         self.add_new.setEnabled(False)
+
         self.edit_btn.setEnabled(True)
         self.cancle_btn.setEnabled(True)
 
@@ -78,6 +78,3 @@ class CategoriesController(QWidget):
             self.loadData()
             self.name.setText("")
             self.editOff()
-
-    def test(self):
-        pass

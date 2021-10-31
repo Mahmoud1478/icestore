@@ -1,10 +1,10 @@
 import time
-
 import MySQLdb
 from MySQLdb.cursors import Cursor, DictCursor
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon
 import json
+from globals import AutoLoader
 
 with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
     configuration = json.load(AppConfiguration)["database"]
@@ -21,24 +21,20 @@ class Connection:
             self.__cursor = None
             self._statement = f"SELECT * FROM {self.__class__.__name__}"
             self._values = []
-            self.__db = MySQLdb.connect(
-                host=configuration["host"],
-                user=configuration["user"],
-                password=configuration["password"],
-                database=configuration["name"]
-            )
+            # self.__db = MySQLdb.connect(host=configuration["host"], user=configuration["user"],
+            # password=configuration["password"], database=configuration["name"])
+            self.__db = MySQLdb.connect(**AutoLoader.controller("settingApi", "setting")().dbSetting)
             self.__db.set_character_set("utf8mb4")
             self.__db.dump_debug_info()
             self.__set_cursor()
         except Exception as Error:
-            ''' msg = QMessageBox()
+            msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setText(str(Error))
             msg.setWindowTitle("خطا")
             msg.setWindowIcon(QIcon("images/logo.png"))
             msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()'''
-            print(Error)
+            msg.exec_()
 
     def __set_cursor(self) -> None:
         try:
@@ -90,7 +86,7 @@ class Connection:
         self.__db.commit()
         return self
 
-    def saveRows(self):
+    def saveMany(self):
         self._query_(self._statement, self._values)
         self._statement = f"SELECT * FROM {self.__class__.__name__}"
         self._values = []
@@ -100,13 +96,14 @@ class Connection:
     def _query(self, query: str, values: tuple = None):
         start = time.time()
         self.__cursor.execute(str(query), values)
-        print(f"{self.__cursor._executed}  {time.time() - start : .4f}s")
+        print(f"{bytes(self.__cursor._executed).decode('utf8')}  {time.time() - start : .4f}s")
         return self
 
     def _query_(self, query: str, values: list = None):
         start = time.time()
         self.__cursor.executemany(str(query), values)
-        print(f"{self.__cursor._executed}  {time.time() - start :.4f}s")
+        # print(f"{bytes(self.__cursor._executed).decode('utf8')}  {time.time() - start :.4f}s")
+
         return self
 
     def last_one(self) -> int:

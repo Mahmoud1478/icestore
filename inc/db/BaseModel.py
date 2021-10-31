@@ -90,20 +90,13 @@ class BaseModel(Connection):
                                                   placeholder=placeholder)
         return self
 
-    def createMany(self, columns: list, values: list):
-        """"""
-        placeholder: str = ""
-        columnsCount: int = len(columns)
-        columns_: str = ""
-        for i, column in enumerate(columns):
-            if i == columnsCount - 1:
-                placeholder += "%s"
-                columns_ += column
-            else:
-                placeholder += "%s,"
-        self._statement = INSERT_STATEMENT.format(table=self.__table_name, columns=columns_, placeholder=placeholder)
-        for value in values:
-            self._values.append(value)
+    def createMany(self, **kwargs):
+        self._statement = INSERT_STATEMENT.format(
+            table=self.__table_name, columns=",".join(kwargs.keys()),
+            placeholder=",".join(["%s" for _ in range(len(kwargs.keys()))])
+        )
+        for item in zip(*list(kwargs.values())):
+            self._values.append(item)
         return self
 
     def update(self, **kwargs):

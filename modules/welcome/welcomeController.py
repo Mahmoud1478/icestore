@@ -7,7 +7,6 @@ import os
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import ctypes
-
 import Resorces_rc
 
 CREATE_DATABASE_STATEMENT = '''CREATE DATABASE IF NOT EXISTS {name} DEFAULT CHARACTER SET utf8mb4 COLLATE 
@@ -18,6 +17,8 @@ class WelcomeController(QMainWindow):
     def __init__(self):
         super(WelcomeController, self).__init__()
         loadUi("ui/__activator__/activator1.ui", self)
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('ElmalaHSoFt.IceStore.1.0.0')
+        QFontDatabase.addApplicationFont('assets/fonts/Cairo-Regular.ttf')
         self.api = AutoLoader.controller("settingApi", "setting")()
         self.__db = None
         self.__cursor = None

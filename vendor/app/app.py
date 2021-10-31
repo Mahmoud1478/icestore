@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from vendor.app.template.uitemplate import Template
 
 with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
     file = json.load(AppConfiguration)
@@ -10,30 +11,19 @@ with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
 
 
 class App:
-
     @staticmethod
-    def generateUi(name: str):
-        uiFilePath = f"{Paths['uiUserInterface']}/{name}/{name}.ui"
+    def generateUi(name: str, type: str, module: str = ''):
+        widget = {
+            "widget": "Widget",
+            "dialog": "Dialog",
+            "mainWindow": "MainWindow",
+            "dialogWRB": "DialogWithRightButtons",
+            "dialogWBB": "DialogWithBottomButtons",
+            "frame": "Frame"
+        }
+        uiFilePath = f"{Paths['uiUserInterface']}/{name if module == '' else module}/{name}.ui"
         with open(uiFilePath, "w", encoding="utf8") as uiFile:
-            uiFile.write(f'''<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="{name}">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>300</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>{APP_Name}</string>
-  </property>
- </widget>
- <resources/>
- <connections/>
-</ui>''')
+            uiFile.write(getattr(Template, widget[type]).format(Name=name, AppName=APP_Name))
         return uiFilePath
 
     @staticmethod
@@ -123,3 +113,7 @@ class {name.capitalize() if "_" not in name else name}(Table):
     def down(self):
         return self._drop() ''')
             return f"{print_}"
+
+    @staticmethod
+    def generateSeeder():
+        pass

@@ -9,6 +9,7 @@ with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
     file = json.load(AppConfiguration)
     MODULE_PATH = file["Paths"]["Modules"]
     UI_PATH = file["Paths"]["uiUserInterface"]
+    SEEDER_PATH = file["Paths"]["Seeder"]
     AppConfiguration.close()
 
 
@@ -63,4 +64,18 @@ class AutoLoader:
             class_instance = getattr(module, className)
         else:
             class_instance = getattr(module, className.capitalize())
+        return class_instance()
+
+    @staticmethod
+    def seeder(fileName):
+        file_ = str(SEEDER_PATH).replace("\\", ".") + "." + fileName.lower() + "Seeder"
+        module = import_module(file_)
+        class_instance = getattr(module, fileName.capitalize()+"Seeder")
+        return class_instance()
+
+    @staticmethod
+    def mainSeeder(fileName):
+        file_ = str(SEEDER_PATH).replace("\\", ".") + "." + fileName
+        module = import_module(file_)
+        class_instance = getattr(module, fileName.capitalize())
         return class_instance()

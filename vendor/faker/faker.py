@@ -4,6 +4,9 @@ from vendor.faker.assets.resources import FakerResources
 
 
 class Faker:
+    def __init__(self):
+       pass
+
     @staticmethod
     def fullName(nameCount: int, male: bool = True, female: bool = True):
         fullName = ""
@@ -64,6 +67,19 @@ class Faker:
                     counter += 1
 
         return text
+
+    def unique(self, field, times):
+        refList = []
+        value = []
+        method = getattr(self, field)
+        counter = times
+        while counter > 0:
+            item = method()
+            if item not in refList:
+                refList.append(item)
+                value.append(item)
+                counter -= 1
+        return value
 
     @staticmethod
     def writeFile():

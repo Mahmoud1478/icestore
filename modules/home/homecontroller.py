@@ -40,7 +40,7 @@ class HomeController(QMainWindow):
 
     def menu_resize(self, event):
         self.available_space_menu = self.scrollContents.height() - (
-                    (len(self.menus) * self.menu_height) + self.menu_height)
+                (len(self.menus) * self.menu_height) + self.menu_height)
 
     def toggle_menu(self):
         if self.main_menu_status:
@@ -275,3 +275,6 @@ class HomeController(QMainWindow):
         self.chart_3.setGraphicsEffect(self.shadow)
         self.chart_2.setGraphicsEffect(self.shadow)'''
         self.widget_2.setGraphicsEffect(shadow)
+
+    def changeEvent(self, a0: QResizeEvent) -> None:
+        self.update()

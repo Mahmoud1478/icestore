@@ -41,6 +41,7 @@
     "Paths": {
         "migrations": "inc\\migrations",
         "uiUserInterface": "ui",
-        "Modules": "modules"
+        "Modules": "modules",
+        "Seeder": "database\\seeder"
     }
 }

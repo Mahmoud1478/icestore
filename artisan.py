@@ -17,6 +17,8 @@ class Artisan:
                 "model": self.model,
                 "controller": self.controller,
                 "migration": self.migration,
+                "ui": self.ui,
+                "seeder": self.seeder
             },
             "convert": {
                 "qrc": self.convert_qrc,
@@ -28,7 +30,7 @@ class Artisan:
             },
             "build": self.build,
             "exe": self.exe,
-
+            "seed": self.seed
         }
         if ":" in self.args[0]:
             command, command_type = self.args[0].split(":")
@@ -60,7 +62,7 @@ class Artisan:
             print(f"created {module_path}/ui/{name.lower()}")
             if not os.path.isdir(module_path_ui):
                 os.mkdir(module_path_ui)
-                print(f"created {App.generateUi(name)}")
+                print(f"created {App.generateUi(name, 'widget')}")
         else:
             print("the module is already exists")
 
@@ -127,6 +129,25 @@ class Artisan:
 
     def exe(self, *args):
         pass
+
+    @staticmethod
+    def ui(options):
+        name, module = options[0].split("@")
+        print(f'created {App.generateUi(name, options[1], module)}')
+
+    @staticmethod
+    def seeder(options):
+        pass
+
+    @staticmethod
+    def seed(options):
+        print("start seeding")
+        start = time.time()
+        name = "seeder"
+        seeder = AutoLoader.mainSeeder(name)
+        seeder.seed()
+        finish = time.time()
+        print(f"finish seeding  {finish - start :.3f} s")
 
 
 if __name__ == '__main__':
