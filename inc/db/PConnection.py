@@ -1,10 +1,12 @@
-import time
-import MySQLdb
 from MySQLdb.cursors import Cursor, DictCursor
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5.QtGui import QIcon
-import json
 from globals import AutoLoader
+from PyQt5.QtGui import QIcon
+from abc import ABC
+import MySQLdb
+import time
+import json
+
 
 with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
     configuration = json.load(AppConfiguration)["database"]
@@ -14,27 +16,30 @@ cursesMapper = {
 }
 
 
-class Connection:
+class Connection(ABC):
     def __init__(self):
         try:
             self.__cursorType = configuration["DefaultCursor"]
             self.__cursor = None
+            self.__db = None
             self._statement = f"SELECT * FROM {self.__class__.__name__}"
             self._values = []
-            # self.__db = MySQLdb.connect(host=configuration["host"], user=configuration["user"],
-            # password=configuration["password"], database=configuration["name"])
-            self.__db = MySQLdb.connect(**AutoLoader.controller("settingApi", "setting")().dbSetting)
-            self.__db.set_character_set("utf8mb4")
-            self.__db.dump_debug_info()
-            self.__set_cursor()
+            if self.__db is None:
+                # self.__db = MySQLdb.connect(host=configuration["host"], user=configuration["user"],
+                # password=configuration["password"], database=configuration["name"])
+                self.__db = MySQLdb.connect(**AutoLoader.controller("settingApi", "setting")().dbSetting)
+                self.__db.set_character_set("utf8mb4")
+                self.__db.dump_debug_info()
+                self.__set_cursor()
         except Exception as Error:
-            msg = QMessageBox()
+            """ msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setText(str(Error))
             msg.setWindowTitle("خطا")
             msg.setWindowIcon(QIcon("images/logo.png"))
             msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec_()
+            msg.exec_()"""
+            print(Error)
 
     def __set_cursor(self) -> None:
         try:
@@ -54,18 +59,6 @@ class Connection:
         self._query(self._statement, tuple(self._values))
         return self.__cursor.fetchone()
 
-    def findObject(self):
-        self._query(self._statement, tuple(self._values))
-        self._statement = f"SELECT * FROM {self.__class__.__name__.lower}"
-        self._values = []
-        val = self.__cursor.fetchone()
-        if val:
-            for key, value in val.items():
-                self.__setattr__(key, value)
-            return self
-        else:
-            return None
-
     def save(self):
         self._query(self._statement, tuple(self._values))
         self._statement = f"SELECT * FROM {self.__class__.__name__.lower()}"
@@ -76,15 +69,6 @@ class Connection:
     def count(self):
         self._query(self._statement, tuple(self._values))
         return self.__cursor.rowcount
-
-    def saveObject(self):
-        self._statement += f" WHERE id = {getattr(self, 'id')}"
-        print(self._statement, self._values)
-        self._query(self._statement, tuple(self._values))
-        self._statement = ""
-        self._values = []
-        self.__db.commit()
-        return self
 
     def saveMany(self):
         self._query_(self._statement, self._values)

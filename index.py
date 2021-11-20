@@ -2,6 +2,14 @@ from globals import AutoLoader
 from PyQt5.QtWidgets import QApplication
 import sys
 from database.seeder.categoriesSeeder import CategoriesSeeder
+from modules.categories.models.categoriesModel import Categories
+from modules.students.models.studentsModel import Students
+from modules.globalModels.teachers_studentsModel import teachers_students
+from vendor import Faker
+from modules.teachers.models.teachersModel import Teachers
+from modules.orders.models.ordersModel import Orders
+from modules.orders.models.ordersitemsModel import Ordersitems
+from faker import factory
 
 
 class Index:
@@ -19,4 +27,3 @@ if __name__ == '__main__':
     window = Index.index()()
     window.show()
     app.exec()
-    # CategoriesSeeder().run()

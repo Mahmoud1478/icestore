@@ -6,5 +6,6 @@ class Ordersitems(BaseModel):
         super(Ordersitems, self).__init__()
         self._setTable("order_items")
 
+    @property
     def order(self):
         return self._belongsTo("orders", "id", "order_id")
