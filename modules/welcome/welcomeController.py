@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.uic import loadUi
 import MySQLdb
 import subprocess
-import os
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import ctypes
