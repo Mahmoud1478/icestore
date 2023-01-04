@@ -6,10 +6,11 @@ from abc import ABC
 import MySQLdb
 import time
 import json
-
+from .assets.QueryStrBuilder import QueryStrBuilder
 
 with open("AppConfiguration.json", "r", encoding="utf8") as AppConfiguration:
     configuration = json.load(AppConfiguration)["database"]
+
 cursesMapper = {
     "dict": DictCursor,
     "tuple": Cursor
@@ -17,20 +18,13 @@ cursesMapper = {
 
 
 class Connection(ABC):
-    def __init__(self):
+    db = None
+    cursor = None
+    if db is None:
         try:
-            self.__cursorType = configuration["DefaultCursor"]
-            self.__cursor = None
-            self.__db = None
-            self._statement = f"SELECT * FROM {self.__class__.__name__}"
-            self._values = []
-            if self.__db is None:
-                # self.__db = MySQLdb.connect(host=configuration["host"], user=configuration["user"],
-                # password=configuration["password"], database=configuration["name"])
-                self.__db = MySQLdb.connect(**AutoLoader.controller("settingApi", "setting")().dbSetting)
-                self.__db.set_character_set("utf8mb4")
-                self.__db.dump_debug_info()
-                self.__set_cursor()
+            db = MySQLdb.connect(**AutoLoader.controller("settingApi", "setting")().dbSetting)
+            db.set_character_set("utf8mb4")
+            db.dump_debug_info()
         except Exception as Error:
             """ msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
@@ -41,67 +35,80 @@ class Connection(ABC):
             msg.exec_()"""
             print(Error)
 
+    def __init__(self):
+        self.cursorType = configuration["DefaultCursor"]
+        self.queryObj = QueryStrBuilder()
+        self.__set_cursor()
+
     def __set_cursor(self) -> None:
         try:
-            self.__cursor = self.__db.cursor(cursesMapper[self.__cursorType])
+            self.cursor = self.db.cursor(cursesMapper[self.cursorType])
         except Exception as err:
             print("cursor type not supported", err)
-            self.__cursor = self.__db.cursor(Cursor)
+            self.cursor = self.db.cursor(Cursor)
 
-    def close(self) -> None:
-        self.__db.close()
+    def close(self):
+        self.db.close()
+        return self
 
-    def get(self) -> tuple:
-        self._query(self._statement, tuple(self._values))
-        return self.__cursor.fetchall()
+    def get(self, query, value) -> tuple or dict:
+        self.query(query, value)
+        return self.cursor.fetchall()
 
     def first(self):
-        self._query(self._statement, tuple(self._values))
-        return self.__cursor.fetchone()
+        self._query(self.__build(), self.queryObj.values)
+        self.queryObj.reset()
+        return self.cursor.fetchone()
 
     def save(self):
-        self._query(self._statement, tuple(self._values))
-        self._statement = f"SELECT * FROM {self.__class__.__name__.lower()}"
-        self._values = []
-        self.__db.commit()
+        self._query(self.__build(), tuple(self.queryObj.values))
+        self.queryObj.reset()
+        self.db.commit()
         return self
 
     def count(self):
-        self._query(self._statement, tuple(self._values))
-        return self.__cursor.rowcount
+        self._query(self.__build(), tuple(self.queryObj.values))
+        return self.cursor.rowcount
 
     def saveMany(self):
-        self._query_(self._statement, self._values)
-        self._statement = f"SELECT * FROM {self.__class__.__name__}"
-        self._values = []
-        self.__db.commit()
+        self._query_(self.__build(), self.queryObj.values)
+        self.queryObj.reset()
+        self.db.commit()
         return self
 
-    def _query(self, query: str, values: tuple = None):
+    def query(self, query: str, values: tuple = None):
         start = time.time()
-        self.__cursor.execute(str(query), values)
-        print(f"{bytes(self.__cursor._executed).decode('utf8')}  {time.time() - start : .4f}s")
+        self.cursor.execute(str(query), values)
+        print(f"{bytes(self.cursor._executed).decode('utf8')}  {time.time() - start : .4f}s")
         return self
 
-    def _query_(self, query: str, values: list = None):
+    def query_many(self, query: str, values: list = None):
         start = time.time()
-        self.__cursor.executemany(str(query), values)
-        # print(f"{bytes(self.__cursor._executed).decode('utf8')}  {time.time() - start :.4f}s")
+        self.cursor.executemany(query, values)
+        print(f"{bytes(self.cursor._executed).decode('utf8')}  {time.time() - start :.4f}s")
 
         return self
 
     def last_one(self) -> int:
-        return self.__cursor.lastrowid
-
-    def __chose_cursors(self) -> object:
-        if str(self.__cursorType).lower() == "dict":
-            return DictCursor
-        elif str(self.__cursorType).lower() == "tuple":
-            return Cursor
-        else:
-            return Cursor
+        return self.cursor.lastrowid
 
     def set_cursor_type(self, cursors_type: str):
-        self.__cursorType = str(cursors_type)
+        self.cursorType = str(cursors_type)
         self.__set_cursor()
         return self
+
+    def __build(self):
+        return self.queryObj.build(self.table)
+
+    def showQuery(self):
+        return self.queryObj.build(self.table), self.queryObj.values
+
+    def test(self):
+        return self.queryObj.test(self.table)
+
+    def statement(self, query: str, binding: tuple = None):
+        self._query(query, binding)
+        return self.db.commit()
+
+    def toSql(self):
+        return self.queryObj.build(self.table)

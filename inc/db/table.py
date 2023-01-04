@@ -1,4 +1,4 @@
-from inc.db.Connection import Connection
+from inc.db.PConnection import Connection
 
 CREATE_TABLE_STATEMENT = "CREATE TABLE IF NOT EXISTS {name} ({columns});"
 DROP_TABLE_STATEMENT = "SET FOREIGN_KEY_CHECKS = 0; DROP TABLE IF EXISTS {name}; SET FOREIGN_KEY_CHECKS = 1;"

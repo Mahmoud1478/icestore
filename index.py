@@ -1,29 +1,60 @@
-from globals import AutoLoader
-from PyQt5.QtWidgets import QApplication
-import sys
-from database.seeder.categoriesSeeder import CategoriesSeeder
+# from globals import AutoLoader
+from collections import Counter, defaultdict
+
+from past.builtins import cmp
+
+from inc.Collection.Collect import Collect
+from inc.db.migration.Column import Column
+from inc.db.migration.Table import Table
 from modules.categories.models.categoriesModel import Categories
-from modules.students.models.studentsModel import Students
-from modules.globalModels.teachers_studentsModel import teachers_students
-from vendor import Faker
-from modules.teachers.models.teachersModel import Teachers
-from modules.orders.models.ordersModel import Orders
 from modules.orders.models.ordersitemsModel import Ordersitems
-from faker import factory
+# from vendor.Auth import Auth
+import cProfile
+from timeit import timeit, repeat
+import itertools
 
 
-class Index:
+# class Index:
+#     @staticmethod
+#     def index():
+#         Auth().set_user(Categories().first())
+#         api = AutoLoader.controller("settingApi", "setting")()
+#         if api.appState == 0 or api.appState["migrate"] == 1:
+#             return AutoLoader.mainController("welcome")
+#         else:
+#             return AutoLoader.mainController("home")
+#
+from modules.users.models.User import Users
+
+
+class UserMs(Table):
     @staticmethod
-    def index():
-        api = AutoLoader.controller("settingApi", "setting")()
-        if api.appState == 0 or api.appState["migrate"] == 1:
-            return AutoLoader.mainController("welcome")
-        else:
-            return AutoLoader.mainController("home")
+    def test(self, name, col):
+        if callable(col):
+            col()
+
+    def run(self, colum: Column):
+        colum.primaryKey()
+
+    def up(self):
+        # self.test('self', 'user', lambda colum=Column: (
+        #
+        # ))
+        self.create('users_test', [
+            self.column.id().unique(),
+            self.column.string('first_name').notNull(),
+            self.column.string('last_name'),
+            self.column.longText('short_note'),
+            self.column.tinyInteger('is_active').default(0),
+            self.column.string('color').nullable()
+        ])
+
+    def down(self):
+        self._drop()
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = Index.index()()
-    window.show()
-    app.exec()
+
+    data = Users().With(['shift']).get()
+    print(data[0].shifts)
+    pass

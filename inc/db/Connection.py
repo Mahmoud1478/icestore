@@ -1,10 +1,9 @@
-import time
+import json
 
 import MySQLdb
 from MySQLdb.cursors import Cursor, DictCursor
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtGui import QIcon
-import json
+from PyQt5.QtWidgets import QMessageBox
 
 from globals import AutoLoader
 
@@ -15,20 +14,26 @@ cursesMapper = {
     "tuple": Cursor
 }
 
+from . query import Query
+
 
 class Connection:
+    __db = None
+
     def __init__(self):
         try:
             self.__cursorType = configuration["DefaultCursor"]
             self.__cursor = None
             self._statement = f"SELECT * FROM {self.__class__.__name__}"
             self._values = []
-            # self.__db = MySQLdb.connect(host=configuration["host"], user=configuration["user"],
-            # password=configuration["password"],database=configuration["name"])
-            self.__db = MySQLdb.connect(**AutoLoader.controller("settingApi", "setting")().dbSetting)
-            self.__db.set_character_set("utf8mb4")
-            self.__db.dump_debug_info()
-            self.__set_cursor()
+            if self.__db is None:
+                # self.__db = MySQLdb.connect(host=configuration["host"], user=configuration["user"],
+                # password=configuration["password"],database=configuration["name"])
+                self.__db = MySQLdb.connect(**AutoLoader.controller("settingApi", "setting")().dbSetting)
+                self.__db.set_character_set("utf8mb4")
+                self.__db.dump_debug_info()
+                self.__set_cursor()
+                self.query = Query()
         except Exception as Error:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
@@ -96,7 +101,7 @@ class Connection:
         return self
 
     def _query(self, query: str, values: tuple = None):
-        self.__cursor.execute(str(query), values)
+        self.__cursor.execute(query, values)
         return self
 
     def _query_(self, query: str, values: list = None):

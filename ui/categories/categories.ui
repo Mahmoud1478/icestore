@@ -247,6 +247,12 @@ text-align: right;</string>
       </item>
       <item>
        <widget class="QFrame" name="tableContainer">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -276,53 +282,13 @@ text-align: right;</string>
           <number>0</number>
          </property>
          <item>
-          <widget class="QTableWidget" name="table">
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
+          <widget class="QWidget" name="datatable" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>1</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
            </property>
-           <property name="frameShape">
-            <enum>QFrame::StyledPanel</enum>
-           </property>
-           <property name="sizeAdjustPolicy">
-            <enum>QAbstractScrollArea::AdjustIgnored</enum>
-           </property>
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
-           </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectRows</enum>
-           </property>
-           <property name="rowCount">
-            <number>0</number>
-           </property>
-           <property name="columnCount">
-            <number>2</number>
-           </property>
-           <attribute name="horizontalHeaderDefaultSectionSize">
-            <number>250</number>
-           </attribute>
-           <attribute name="verticalHeaderVisible">
-            <bool>false</bool>
-           </attribute>
-           <attribute name="verticalHeaderMinimumSectionSize">
-            <number>40</number>
-           </attribute>
-           <attribute name="verticalHeaderDefaultSectionSize">
-            <number>40</number>
-           </attribute>
-           <column>
-            <property name="text">
-             <string>اسم القسم</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>حذف</string>
-            </property>
-           </column>
           </widget>
          </item>
         </layout>

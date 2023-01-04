@@ -1,17 +1,23 @@
+import global_test
 from modules.categories.models.categoriesModel import Categories
 from globals import AutoLoader
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from globals.widgets.datatable.datatable import DataTable
+from vendor.Thread import Thread
+from vendor.Auth import Auth
 
 
 class CategoriesController(QWidget):
     def __init__(self):
         super(CategoriesController, self).__init__()
+        self.thread = None
         AutoLoader.uiFile("categories", self)
         self.oldName = None
-        self.loadData()
-        self.editOff()
+        # self.datatable.addWidget(DataTable())
+        # self.loadData()
+        # self.editOff()
         self.eventHandler()
         self.ui()
 
@@ -19,9 +25,9 @@ class CategoriesController(QWidget):
         self.linePlaceholder()
 
     def eventHandler(self):
-        self.table.doubleClicked.connect(self.editSignal)
-        self.edit_btn.clicked.connect(self.updateItem)
-        self.cancle_btn.clicked.connect(self.editOff)
+        # self.table.doubleClicked.connect(self.editSignal)
+        # self.edit_btn.clicked.connect(self.updateItem)
+        # self.cancle_btn.clicked.connect(self.editOff)
         self.add_new.clicked.connect(self.createNew)
         # self.table.resizeEvent = self.tableUi
 
@@ -55,10 +61,12 @@ class CategoriesController(QWidget):
         self.oldName = name
 
     def createNew(self):
-        if self.name.text() != "":
-            Categories().create(name=self.name.text()).save()
-            self.loadData()
-            self.name.setText("")
+        # if self.name.text() != "":
+        #     Categories().create(name=self.name.text()).save()
+        #     self.loadData()
+        #     self.name.setText("")
+        model = Categories().where('id', 1)
+        print(Auth.user())
 
     def tableUi(self, e=None):
         width = self.table.width()
